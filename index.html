@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nøglebestilling – Blomfelt</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#1a3c5e;
+  --primary-dark:#122c47;
+  --primary-light:#2a5080;
+  --primary-50:#e8f0f7;
+  --accent:#2e86c1;
+  --white:#ffffff;
+  --gray-50:#f8fafc;
+  --gray-100:#f1f5f9;
+  --gray-200:#e2e8f0;
+  --gray-300:#cbd5e1;
+  --gray-400:#94a3b8;
+  --gray-500:#64748b;
+  --gray-600:#475569;
+  --gray-700:#334155;
+  --gray-900:#0f172a;
+  --s-anmodet:#f59e0b;
+  --s-bestilt:#3b82f6;
+  --s-bekræftet:#8b5cf6;
+  --s-afsendt:#06b6d4;
+  --s-modtaget:#10b981;
+  --s-opkrævet:#6b7280;
+  --s-annulleret:#ef4444;
+  --radius:8px;
+  --radius-lg:14px;
+  --radius-xl:20px;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.08);
+  --shadow:0 4px 12px rgba(0,0,0,.10);
+  --shadow-lg:0 8px 28px rgba(0,0,0,.14);
+  --transition:180ms ease;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--gray-100);
+  color:var(--gray-900);
+  min-height:100vh;
+  font-size:15px;
+  line-height:1.6;
+}
+
+/* ─── UTILITIES ─────────────────────────────────────────── */
+.hidden{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.flex{display:flex}
+.flex-col{flex-direction:column}
+.items-center{align-items:center}
+.justify-between{justify-content:space-between}
+.gap-2{gap:.5rem}
+.gap-3{gap:.75rem}
+.gap-4{gap:1rem}
+.gap-6{gap:1.5rem}
+.mt-1{margin-top:.25rem}
+.mt-2{margin-top:.5rem}
+.mt-3{margin-top:.75rem}
+.mt-4{margin-top:1rem}
+.mt-6{margin-top:1.5rem}
+.mt-8{margin-top:2rem}
+.mb-1{margin-bottom:.25rem}
+.mb-2{margin-bottom:.5rem}
+.mb-3{margin-bottom:.75rem}
+.mb-4{margin-bottom:1rem}
+.mb-6{margin-bottom:1.5rem}
+.text-sm{font-size:.875rem}
+.text-xs{font-size:.75rem}
+.text-lg{font-size:1.125rem}
+.text-xl{font-size:1.25rem}
+.text-2xl{font-size:1.5rem}
+.text-3xl{font-size:1.875rem}
+.font-medium{font-weight:500}
+.font-semibold{font-weight:600}
+.font-bold{font-weight:700}
+.text-center{text-align:center}
+.text-muted{color:var(--gray-500)}
+.text-primary{color:var(--primary)}
+.w-full{width:100%}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ─── LAYOUT ─────────────────────────────────────────────── */
+.site-header{
+  background:var(--primary);
+  color:#fff;
+  padding:.875rem 1.5rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:.625rem;
+  text-decoration:none;
+  color:#fff;
+}
+.logo-mark{
+  width:34px;height:34px;
+  background:#fff;
+  border-radius:var(--radius);
+  display:flex;align-items:center;justify-content:center;
+}
+.logo-mark svg{display:block}
+.logo-text{font-size:1.125rem;font-weight:700;letter-spacing:-.3px}
+.logo-sub{font-size:.7rem;opacity:.7;margin-left:.1rem;font-weight:400;letter-spacing:.5px;text-transform:uppercase}
+.header-actions{display:flex;align-items:center;gap:.75rem}
+.header-user{font-size:.875rem;opacity:.85;max-width:200px;truncate:overflow}
+
+.page-container{
+  max-width:720px;
+  margin:0 auto;
+  padding:2rem 1rem 4rem;
+}
+.page-container.wide{max-width:1100px}
+
+/* ─── CARDS ──────────────────────────────────────────────── */
+.card{
+  background:#fff;
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow);
+  padding:1.75rem;
+}
+.card-sm{padding:1.25rem}
+.card-title{font-size:1.125rem;font-weight:600;color:var(--primary);margin-bottom:1.25rem}
+.card + .card{margin-top:1.25rem}
+
+/* ─── BUTTONS ────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+  padding:.6rem 1.25rem;
+  border-radius:var(--radius);
+  font-size:.9rem;font-weight:500;
+  cursor:pointer;border:none;
+  transition:background var(--transition),box-shadow var(--transition),opacity var(--transition);
+  text-decoration:none;
+  white-space:nowrap;
+  line-height:1.2;
+}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--primary-dark);box-shadow:0 4px 12px rgba(26,60,94,.35)}
+.btn-secondary{background:var(--gray-100);color:var(--gray-700);border:1.5px solid var(--gray-200)}
+.btn-secondary:hover:not(:disabled){background:var(--gray-200)}
+.btn-outline{background:transparent;color:var(--primary);border:1.5px solid var(--primary)}
+.btn-outline:hover:not(:disabled){background:var(--primary-50)}
+.btn-danger{background:#fee2e2;color:#b91c1c;border:1.5px solid #fecaca}
+.btn-danger:hover:not(:disabled){background:#fecaca}
+.btn-success{background:#dcfce7;color:#15803d;border:1.5px solid #bbf7d0}
+.btn-success:hover:not(:disabled){background:#bbf7d0}
+.btn-success.done{background:#15803d;color:#fff;border-color:#15803d}
+.btn-lg{padding:.8rem 1.75rem;font-size:1rem}
+.btn-sm{padding:.4rem .875rem;font-size:.8rem}
+.btn-xs{padding:.25rem .6rem;font-size:.75rem}
+.btn-icon{padding:.5rem;border-radius:var(--radius)}
+
+/* ─── FORMS ──────────────────────────────────────────────── */
+.form-group{margin-bottom:1.25rem}
+.form-group:last-child{margin-bottom:0}
+label{display:block;font-size:.875rem;font-weight:500;color:var(--gray-700);margin-bottom:.4rem}
+.label-hint{font-size:.75rem;font-weight:400;color:var(--gray-500);margin-left:.4rem}
+input[type=text],input[type=email],input[type=tel],input[type=number],textarea,select{
+  width:100%;
+  padding:.65rem .875rem;
+  border:1.5px solid var(--gray-300);
+  border-radius:var(--radius);
+  font-size:.925rem;
+  color:var(--gray-900);
+  background:#fff;
+  transition:border-color var(--transition),box-shadow var(--transition);
+  outline:none;
+  font-family:inherit;
+  line-height:1.5;
+}
+input:focus,textarea:focus,select:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(26,60,94,.12);
+}
+textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:560px){.form-row{grid-template-columns:1fr}}
+
+/* ─── STEPPER (antal) ────────────────────────────────────── */
+.stepper{
+  display:inline-flex;align-items:center;
+  border:1.5px solid var(--gray-300);
+  border-radius:var(--radius);
+  overflow:hidden;
+  background:#fff;
+}
+.stepper button{
+  width:40px;height:40px;
+  border:none;background:var(--gray-100);
+  cursor:pointer;font-size:1.2rem;color:var(--gray-600);
+  transition:background var(--transition);
+  display:flex;align-items:center;justify-content:center;
+}
+.stepper button:hover{background:var(--gray-200)}
+.stepper input{
+  width:52px;text-align:center;
+  border:none;border-left:1.5px solid var(--gray-300);border-right:1.5px solid var(--gray-300);
+  border-radius:0;padding:.5rem 0;font-size:1rem;font-weight:600;
+  -moz-appearance:textfield;
+}
+.stepper input::-webkit-inner-spin-button,.stepper input::-webkit-outer-spin-button{-webkit-appearance:none}
+
+/* ─── STATUS BADGES ──────────────────────────────────────── */
+.badge{
+  display:inline-flex;align-items:center;gap:.35rem;
+  padding:.25rem .7rem;
+  border-radius:99px;
+  font-size:.75rem;font-weight:600;
+  letter-spacing:.2px;
+  white-space:nowrap;
+}
+.badge-dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.9}
+.badge-anmodet{background:#fef3c7;color:#92400e}
+.badge-bestilt{background:#dbeafe;color:#1d4ed8}
+.badge-bekræftet{background:#ede9fe;color:#6d28d9}
+.badge-afsendt{background:#cffafe;color:#0e7490}
+.badge-modtaget{background:#d1fae5;color:#065f46}
+.badge-opkrævet{background:#f1f5f9;color:#475569}
+.badge-annulleret{background:#fee2e2;color:#991b1b}
+
+/* ─── STATUS TIMELINE ────────────────────────────────────── */
+.status-timeline{
+  display:flex;align-items:center;
+  gap:0;
+  overflow-x:auto;
+  padding:.5rem 0;
+}
+.timeline-step{
+  display:flex;flex-direction:column;align-items:center;
+  flex:1;min-width:56px;
+  position:relative;
+}
+.timeline-step:not(:last-child)::after{
+  content:'';
+  position:absolute;
+  top:14px;left:calc(50% + 12px);
+  width:calc(100% - 24px);
+  height:2px;
+  background:var(--gray-200);
+}
+.timeline-step.done:not(:last-child)::after{background:var(--primary)}
+.timeline-dot{
+  width:28px;height:28px;
+  border-radius:50%;
+  border:2px solid var(--gray-300);
+  background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;font-weight:700;
+  color:var(--gray-400);
+  z-index:1;
+  position:relative;
+  transition:all .2s;
+}
+.timeline-step.done .timeline-dot{background:var(--primary);border-color:var(--primary);color:#fff}
+.timeline-step.current .timeline-dot{border-color:var(--primary);color:var(--primary);box-shadow:0 0 0 3px rgba(26,60,94,.15)}
+.timeline-step.cancelled .timeline-dot{background:#ef4444;border-color:#ef4444;color:#fff}
+.timeline-label{font-size:.65rem;color:var(--gray-500);margin-top:.3rem;text-align:center;line-height:1.2;max-width:60px}
+.timeline-step.done .timeline-label{color:var(--primary);font-weight:500}
+.timeline-step.current .timeline-label{color:var(--primary);font-weight:600}
+
+/* ─── INFO BOXES ─────────────────────────────────────────── */
+.info-box{
+  background:#e8f4ff;
+  border:1.5px solid #bfdbfe;
+  border-radius:var(--radius);
+  padding:1rem 1.125rem;
+  font-size:.875rem;
+  color:#1e40af;
+  display:flex;gap:.625rem;align-items:flex-start;
+}
+.info-box svg{flex-shrink:0;margin-top:.1rem}
+.info-box-warning{background:#fffbeb;border-color:#fed7aa;color:#92400e}
+
+/* ─── TOASTS ─────────────────────────────────────────────── */
+#toast-container{
+  position:fixed;bottom:1.5rem;right:1.5rem;
+  z-index:9999;
+  display:flex;flex-direction:column;gap:.5rem;
+  pointer-events:none;
+}
+.toast{
+  background:var(--gray-900);color:#fff;
+  padding:.75rem 1.1rem;
+  border-radius:var(--radius);
+  font-size:.875rem;
+  box-shadow:var(--shadow-lg);
+  animation:toastIn .2s ease forwards;
+  pointer-events:auto;
+  max-width:320px;
+  display:flex;align-items:center;gap:.5rem;
+}
+.toast.success{background:#065f46}
+.toast.error{background:#991b1b}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── MODAL ──────────────────────────────────────────────── */
+.modal-backdrop{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:500;
+  display:flex;align-items:center;justify-content:center;
+  padding:1rem;
+  animation:fadeIn .15s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{
+  background:#fff;
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);
+  padding:1.75rem;
+  width:100%;max-width:480px;
+  animation:slideUp .2s ease;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-title{font-size:1.1rem;font-weight:600;color:var(--primary);margin-bottom:1.25rem}
+.modal-actions{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
+
+/* ─── TABS ───────────────────────────────────────────────── */
+.tab-bar{
+  display:flex;gap:0;
+  border-bottom:2px solid var(--gray-200);
+  margin-bottom:1.5rem;
+  overflow-x:auto;
+}
+.tab-btn{
+  padding:.7rem 1.1rem;
+  font-size:.9rem;font-weight:500;
+  color:var(--gray-500);
+  border:none;background:none;
+  cursor:pointer;
+  border-bottom:2.5px solid transparent;
+  margin-bottom:-2px;
+  transition:color var(--transition),border-color var(--transition);
+  white-space:nowrap;
+}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
+.tab-btn:hover:not(.active){color:var(--gray-700)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ─── LANDING PAGE ───────────────────────────────────────── */
+#landing-view{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+}
+.landing-hero{
+  background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);
+  color:#fff;
+  text-align:center;
+  padding:5rem 2rem 4rem;
+}
+.landing-hero h1{font-size:2rem;font-weight:700;margin-bottom:1rem;letter-spacing:-.5px}
+.landing-hero p{font-size:1.1rem;opacity:.85;max-width:480px;margin:0 auto}
+.landing-body{
+  flex:1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:3rem 1.5rem;
+  gap:1.25rem;
+}
+.landing-card{
+  background:#fff;
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);
+  padding:2.25rem 2.5rem;
+  text-align:center;
+  max-width:460px;
+  width:100%;
+}
+.landing-icon{
+  width:64px;height:64px;
+  background:var(--primary-50);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1.25rem;
+}
+.landing-footer-link{
+  margin-top:auto;
+  padding:1.5rem;
+  text-align:center;
+  font-size:.8rem;
+  color:var(--gray-400);
+}
+.landing-footer-link a{color:var(--gray-400);text-decoration:none}
+.landing-footer-link a:hover{color:var(--gray-600)}
+
+/* ─── DEMO PANEL ─────────────────────────────────────────── */
+.demo-panel{
+  background:#fff;
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);
+  padding:1.5rem;
+  max-width:500px;width:100%;
+}
+.demo-panel h3{font-size:1rem;font-weight:600;color:var(--gray-700);margin-bottom:1rem}
+.demo-resident-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.625rem 0;
+  border-bottom:1px solid var(--gray-100);
+  gap:.75rem;
+}
+.demo-resident-row:last-child{border-bottom:none}
+.demo-resident-name{font-size:.9rem;font-weight:500}
+.demo-resident-email{font-size:.775rem;color:var(--gray-500)}
+
+/* ─── RESIDENT FLOW ──────────────────────────────────────── */
+#resident-view{min-height:100vh}
+.step-indicator{
+  display:flex;align-items:center;gap:0;
+  margin-bottom:1.75rem;
+}
+.step-item{
+  display:flex;align-items:center;gap:.4rem;
+  font-size:.8rem;color:var(--gray-400);
+}
+.step-num{
+  width:24px;height:24px;
+  border-radius:50%;
+  background:var(--gray-200);
+  color:var(--gray-500);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:700;
+  flex-shrink:0;
+}
+.step-item.active .step-num{background:var(--primary);color:#fff}
+.step-item.done .step-num{background:var(--primary-50);color:var(--primary)}
+.step-item.active{color:var(--primary);font-weight:600}
+.step-item.done{color:var(--gray-500)}
+.step-sep{flex:1;height:1px;background:var(--gray-200);margin:0 .5rem}
+
+/* ─── APARTMENT SELECTOR ─────────────────────────────────── */
+.apt-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:1rem;
+}
+.apt-card{
+  border:2px solid var(--gray-200);
+  border-radius:var(--radius-lg);
+  padding:1.25rem;
+  cursor:pointer;
+  transition:all .2s;
+  background:#fff;
+}
+.apt-card:hover{border-color:var(--primary);box-shadow:var(--shadow)}
+.apt-card.selected{
+  border-color:var(--primary);
+  background:var(--primary-50);
+  box-shadow:0 0 0 3px rgba(26,60,94,.1);
+}
+.apt-card-prop{font-size:.8rem;color:var(--gray-500);font-weight:500;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.35rem}
+.apt-card-num{font-size:1.25rem;font-weight:700;color:var(--primary);margin-bottom:.2rem}
+.apt-card-code{font-size:.8rem;color:var(--gray-500)}
+
+/* ─── ORDER PILL ─────────────────────────────────────────── */
+.apt-pill{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:var(--primary-50);
+  border:1.5px solid #bfdbfe;
+  border-radius:99px;
+  padding:.3rem .85rem .3rem .65rem;
+  font-size:.85rem;font-weight:500;color:var(--primary);
+  margin-bottom:1.25rem;
+}
+.apt-pill .skift-btn{
+  font-size:.75rem;color:var(--accent);
+  background:none;border:none;cursor:pointer;padding:0 0 0 .3rem;
+  text-decoration:underline;text-underline-offset:2px;
+}
+
+/* ─── EMAIL BUTTONS ──────────────────────────────────────── */
+.email-step-list{display:flex;flex-direction:column;gap:.875rem}
+.email-step-row{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:1rem 1.25rem;
+  border:1.5px solid var(--gray-200);
+  border-radius:var(--radius);
+  background:var(--gray-50);
+}
+.email-step-info{flex:1;min-width:0}
+.email-step-title{font-size:.9rem;font-weight:600;margin-bottom:.1rem}
+.email-step-to{font-size:.8rem;color:var(--gray-500)}
+
+/* ─── CONFIRMATION ───────────────────────────────────────── */
+.confirm-icon{
+  width:72px;height:72px;
+  background:#d1fae5;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1.5rem;
+}
+.order-summary-grid{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:.5rem 1.25rem;
+  font-size:.9rem;
+}
+.osg-label{font-weight:500;color:var(--gray-600);white-space:nowrap}
+.osg-value{color:var(--gray-900)}
+
+/* ─── ORDER HISTORY ──────────────────────────────────────── */
+.order-history-item{
+  border:1.5px solid var(--gray-200);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  background:#fff;
+  transition:box-shadow .2s;
+}
+.order-history-item:hover{box-shadow:var(--shadow)}
+.order-history-header{
+  display:flex;align-items:center;gap:1rem;
+  padding:1rem 1.25rem;
+  cursor:pointer;
+  user-select:none;
+}
+.order-history-header:hover{background:var(--gray-50)}
+.ohi-main{flex:1;min-width:0}
+.ohi-title{font-weight:600;font-size:.95rem;margin-bottom:.2rem}
+.ohi-sub{font-size:.8rem;color:var(--gray-500)}
+.ohi-chevron{
+  width:20px;height:20px;
+  color:var(--gray-400);
+  transition:transform .2s;
+  flex-shrink:0;
+}
+.order-history-body{
+  border-top:1px solid var(--gray-200);
+  padding:1.25rem;
+  display:none;
+}
+.order-history-body.open{display:block}
+.ohi-chevron.open{transform:rotate(180deg)}
+
+/* ─── ADMIN ──────────────────────────────────────────────── */
+#admin-view{min-height:100vh}
+.admin-table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--gray-200)}
+table{width:100%;border-collapse:collapse;font-size:.875rem}
+th{
+  background:var(--gray-50);
+  font-weight:600;color:var(--gray-600);
+  padding:.65rem 1rem;
+  text-align:left;
+  border-bottom:1.5px solid var(--gray-200);
+  white-space:nowrap;
+}
+td{
+  padding:.75rem 1rem;
+  border-bottom:1px solid var(--gray-100);
+  vertical-align:top;
+}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--gray-50)}
+.actions-col{display:flex;gap:.4rem;flex-wrap:wrap}
+
+/* Login */
+.admin-login{
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--gray-100);
+}
+.admin-login-card{
+  background:#fff;
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);
+  padding:2.5rem;
+  width:100%;max-width:380px;
+}
+
+/* Filter bar */
+.filter-bar{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.25rem;align-items:center}
+.filter-bar select,.filter-bar input{width:auto;min-width:160px}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:640px){
+  .landing-hero{padding:3rem 1.25rem 2.5rem}
+  .landing-hero h1{font-size:1.5rem}
+  .landing-card{padding:1.75rem 1.25rem}
+  .card{padding:1.25rem}
+  .page-container{padding:1rem .75rem 3rem}
+  .status-timeline{gap:0}
+  .timeline-label{font-size:.6rem}
+  th,td{padding:.5rem .625rem}
+}
+
+/* ─── MISC ───────────────────────────────────────────────── */
+hr.divider{border:none;border-top:1.5px solid var(--gray-200);margin:1.25rem 0}
+.inline-link{color:var(--accent);text-decoration:none;font-size:.875rem}
+.inline-link:hover{text-decoration:underline}
+.tag{
+  display:inline-block;
+  background:var(--gray-100);color:var(--gray-600);
+  border-radius:99px;
+  padding:.15rem .6rem;
+  font-size:.75rem;font-weight:500;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ TOAST CONTAINER ═════════════════════════════════ -->
+<div id="toast-container"></div>
+
+<!-- ═══ LANDING VIEW ════════════════════════════════════ -->
+<div id="landing-view" class="hidden">
+  <div class="landing-hero">
+    <div style="display:flex;align-items:center;justify-content:center;gap:.75rem;margin-bottom:2rem">
+      <div style="width:48px;height:48px;background:rgba(255,255,255,.2);border-radius:12px;display:flex;align-items:center;justify-content:center">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      </div>
+      <div style="text-align:left">
+        <div style="font-size:1.4rem;font-weight:800;letter-spacing:-.4px">Blomfelt</div>
+        <div style="font-size:.75rem;opacity:.7;letter-spacing:.6px;text-transform:uppercase">Ejendomsadministration</div>
+      </div>
+    </div>
+    <h1>Bestil nøgle til din bolig</h1>
+    <p>Enkel og sikker nøglebestilling direkte fra din e-mail</p>
+  </div>
+  <div class="landing-body">
+    <div class="landing-card">
+      <div class="landing-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1a3c5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <h2 style="font-size:1.2rem;font-weight:700;color:var(--primary);margin-bottom:.75rem">Brug linket fra din e-mail</h2>
+      <p style="color:var(--gray-500);font-size:.95rem;line-height:1.65">
+        Du modtager et personligt link fra din administrator.<br>
+        Klik på linket i e-mailen for at logge ind og bestille nøgle.
+      </p>
+      <div class="info-box info-box-warning mt-4" style="text-align:left">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>Brug linket fra din velkomst-e-mail for at bestille nøgle. Har du ikke modtaget en e-mail, kontakt venligst din administrator.</span>
+      </div>
+      <button class="btn btn-secondary mt-4 w-full" id="show-demo-btn" onclick="toggleDemoPanel()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 22 22 7 12 2"/></svg>
+        Demo – test systemet
+      </button>
+    </div>
+    <div class="demo-panel hidden" id="demo-panel">
+      <h3>Demo – vælg en beboer</h3>
+      <div id="demo-resident-list"></div>
+    </div>
+  </div>
+  <div style="text-align:center;padding:1.5rem 1rem 2rem">
+    <a href="?admin=true" style="display:inline-flex;align-items:center;gap:.5rem;color:var(--gray-500);font-size:.85rem;text-decoration:none;border:1px solid var(--gray-300);border-radius:var(--radius);padding:.5rem 1rem;background:#fff;transition:background var(--transition)" onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background='#fff'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Administratorlogin
+    </a>
+    <div style="margin-top:.75rem;color:var(--gray-400);font-size:.75rem">Blomfelt Ejendomsadministration &nbsp;·&nbsp; Dronningens Tværgade 30, 5., 1302 København K</div>
+  </div>
+</div>
+
+<!-- ═══ RESIDENT VIEW ════════════════════════════════════ -->
+<div id="resident-view" class="hidden">
+  <header class="site-header">
+    <a href="javascript:void(0)" class="logo" onclick="goHome()">
+      <div class="logo-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a3c5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      </div>
+      <div>
+        <div class="logo-text">Blomfelt</div>
+        <div class="logo-sub">Nøglebestilling</div>
+      </div>
+    </a>
+    <div class="header-actions">
+      <span class="header-user" id="header-resident-name"></span>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25)" onclick="showOrders()">Mine bestillinger</button>
+    </div>
+  </header>
+
+  <div class="page-container">
+    <!-- Step indicator -->
+    <div class="step-indicator" id="step-indicator"></div>
+
+    <!-- Step 1: Vælg lejlighed -->
+    <div id="step-apt" class="hidden">
+      <div class="card">
+        <div class="card-title">Vælg lejlighed</div>
+        <div class="apt-grid" id="apt-grid"></div>
+        <div style="margin-top:1.5rem;display:flex;justify-content:flex-end">
+          <button class="btn btn-primary" id="apt-continue-btn" onclick="confirmAptSelection()">Fortsæt →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Bestillingsformular -->
+    <div id="step-form" class="hidden">
+      <div class="card">
+        <div id="apt-pill-container"></div>
+        <div class="card-title" style="margin-bottom:.75rem">Bestil nøgle</div>
+        <form id="order-form" onsubmit="submitOrder(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-navn">Dit navn</label>
+              <input type="text" id="f-navn" required placeholder="Fuldt navn"/>
+            </div>
+            <div class="form-group">
+              <label for="f-email">Din e-mailadresse</label>
+              <input type="email" id="f-email" required placeholder="du@example.com"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="f-noeglekode">Nøglekode <span class="label-hint">Find koden på din nuværende nøgle</span></label>
+            <input type="text" id="f-noeglekode" required placeholder="f.eks. C0493P / 2.1.3"/>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-adresse">Leveringsadresse</label>
+              <input type="text" id="f-adresse" required placeholder="Adresse"/>
+            </div>
+            <div class="form-group">
+              <label for="f-postbox">Navn på postkasse</label>
+              <input type="text" id="f-postbox" required placeholder="Efternavn"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Antal kopier</label>
+            <div class="stepper">
+              <button type="button" onclick="changeAntal(-1)">−</button>
+              <input type="number" id="f-antal" value="1" min="1" max="5" readonly/>
+              <button type="button" onclick="changeAntal(1)">+</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="f-bemaerkning">Bemærkninger <span class="label-hint">Valgfrit</span></label>
+            <textarea id="f-bemaerkning" placeholder="Eventuelle bemærkninger til din bestilling…"></textarea>
+          </div>
+          <div class="info-box mt-4 mb-4">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Din bestilling sendes til fabrikanten via e-mail. Du modtager en kvittering på din e-mailadresse og vil efterfølgende modtage en opkrævning fra Blomfelt.</span>
+          </div>
+          <div style="display:flex;justify-content:flex-end">
+            <button type="submit" class="btn btn-primary btn-lg">Bestil nøgle →</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Step 3: Send e-mails -->
+    <div id="step-email" class="hidden">
+      <div class="card">
+        <div class="card-title">Send bekræftelsese-mails</div>
+        <p style="color:var(--gray-600);font-size:.9rem;margin-bottom:1.5rem">For at registrere din bestilling bedes du sende følgende 3 e-mails. Klik på hver knap – du åbner din e-mailklient med en færdig besked.</p>
+        <div class="email-step-list" id="email-step-list"></div>
+        <div class="info-box mt-4">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <span>Klik alle tre "Åbn i e-mailprogram" knapper, og send e-mailene. Derefter aktiveres "Afslut"-knappen.</span>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:1.5rem">
+          <button class="btn btn-primary" id="finish-btn" onclick="finishOrder()" disabled>Afslut og se bekræftelse</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Confirmation -->
+    <div id="step-confirm" class="hidden">
+      <div class="card" style="text-align:center">
+        <div class="confirm-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#065f46" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h2 style="font-size:1.4rem;font-weight:700;color:var(--primary);margin-bottom:.5rem">Din bestilling er registreret!</h2>
+        <p style="color:var(--gray-500);margin-bottom:1.75rem">Du modtager en kvittering på din e-mail inden for kort tid.</p>
+        <div id="confirm-order-summary" class="card card-sm" style="text-align:left;margin-bottom:1.5rem;background:var(--gray-50)"></div>
+        <button class="btn btn-outline" onclick="showOrders()">Se alle dine bestillinger</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Mine bestillinger -->
+    <div id="step-orders" class="hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+        <h2 style="font-size:1.2rem;font-weight:700;color:var(--primary)">Mine bestillinger</h2>
+        <button class="btn btn-primary btn-sm" onclick="startNewOrder()">+ Ny bestilling</button>
+      </div>
+      <div id="order-list" class="flex flex-col gap-3"></div>
+      <div id="order-list-empty" class="card hidden" style="text-align:center;color:var(--gray-500);padding:3rem">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto .75rem;display:block;opacity:.3"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        Du har ingen bestillinger endnu.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ADMIN VIEW ═══════════════════════════════════════ -->
+<div id="admin-view" class="hidden">
+  <!-- Admin login -->
+  <div id="admin-login" class="admin-login">
+    <div class="admin-login-card">
+      <div style="text-align:center;margin-bottom:1.75rem">
+        <div style="width:52px;height:52px;background:var(--primary);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h2 style="font-size:1.25rem;font-weight:700;color:var(--primary)">Admin – Blomfelt</h2>
+        <p style="font-size:.875rem;color:var(--gray-500);margin-top:.25rem">Log ind med dit adgangskode</p>
+      </div>
+      <div class="form-group">
+        <label for="admin-pw">Adgangskode</label>
+        <input type="password" id="admin-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')adminLogin()"/>
+      </div>
+      <button class="btn btn-primary w-full mt-3" onclick="adminLogin()">Log ind</button>
+      <div id="admin-login-err" class="hidden mt-3" style="color:#b91c1c;font-size:.85rem;text-align:center">Forkert adgangskode</div>
+    </div>
+  </div>
+
+  <!-- Admin panel (after login) -->
+  <div id="admin-panel" class="hidden">
+    <header class="site-header">
+      <a href="javascript:void(0)" class="logo">
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a3c5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        </div>
+        <div>
+          <div class="logo-text">Blomfelt</div>
+          <div class="logo-sub">Administration</div>
+        </div>
+      </a>
+      <div class="header-actions">
+        <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25)" onclick="adminLogout()">Log ud</button>
+      </div>
+    </header>
+    <div class="page-container wide">
+      <div class="tab-bar" id="admin-tab-bar">
+        <button class="tab-btn active" onclick="adminTab('ejendomme',this)">Ejendomme</button>
+        <button class="tab-btn" onclick="adminTab('beboere',this)">Beboere</button>
+        <button class="tab-btn" onclick="adminTab('bestillinger',this)">Bestillinger</button>
+        <button class="tab-btn" onclick="adminTab('demo',this)">Demo</button>
+      </div>
+
+      <!-- Tab: Ejendomme -->
+      <div class="tab-panel active" id="tab-ejendomme">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+          <button class="btn btn-primary btn-sm" onclick="openEjendomModal()">+ Tilføj ejendom</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table id="ejendomme-table">
+            <thead><tr><th>Navn</th><th>Kortnummer</th><th>Pinkode</th><th>Fabrikant-email</th><th>Admin</th><th>Handlinger</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Beboere -->
+      <div class="tab-panel" id="tab-beboere">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+          <button class="btn btn-primary btn-sm" onclick="openBeboerModal()">+ Tilføj beboer</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table id="beboere-table">
+            <thead><tr><th>Navn</th><th>E-mail</th><th>Telefon</th><th>Lejligheder</th><th>Handlinger</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Bestillinger -->
+      <div class="tab-panel" id="tab-bestillinger">
+        <div class="filter-bar">
+          <select id="filter-status" onchange="renderBestillingerTab()">
+            <option value="">Alle statusser</option>
+            <option value="anmodet">Anmodet</option>
+            <option value="bestilt">Bestilt</option>
+            <option value="bekræftet">Bekræftet</option>
+            <option value="afsendt">Afsendt</option>
+            <option value="modtaget">Modtaget</option>
+            <option value="opkrævet">Opkrævet</option>
+            <option value="annulleret">Annulleret</option>
+          </select>
+          <select id="filter-ejendom" onchange="renderBestillingerTab()">
+            <option value="">Alle ejendomme</option>
+          </select>
+        </div>
+        <div class="admin-table-wrap">
+          <table id="bestillinger-table">
+            <thead><tr><th>Dato</th><th>Beboer</th><th>Ejendom</th><th>Lejlighed</th><th>Antal</th><th>Nøglekode</th><th>Status</th><th>Handling</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Demo -->
+      <div class="tab-panel" id="tab-demo">
+        <div class="card" style="max-width:600px">
+          <div class="card-title">Demo-opsætning</div>
+          <p style="color:var(--gray-600);font-size:.9rem;margin-bottom:1.25rem">Nulstil alle data til friske demo-data. Dette sletter eksisterende bestillinger og beboerdata.</p>
+          <button class="btn btn-danger" onclick="resetDemoData()">Nulstil demo-data</button>
+        </div>
+        <div class="card mt-4" style="max-width:600px">
+          <div class="card-title">Magic links til test</div>
+          <div id="demo-links-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL ═══════════════════════════════════════════ -->
+<div id="modal-backdrop" class="modal-backdrop hidden" onclick="closeModal(event)">
+  <div class="modal" id="modal-box">
+    <div class="modal-title" id="modal-title"></div>
+    <div id="modal-body"></div>
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA LAYER
+// ═══════════════════════════════════════════════════════════
+const STORE_KEY = 'blomfelt_v3';
+// Clear any old conflicting keys
+['blomfelt_data','boligforening_nogler_v1','blomfelt_keys'].forEach(k => {
+  try { localStorage.removeItem(k); } catch(e) {}
+});
+
+function genId() {
+  return Math.random().toString(36).slice(2,10) + Math.random().toString(36).slice(2,10);
+}
+
+const INITIAL_DATA = () => {
+  const eid1 = genId(), eid2 = genId();
+  const uid1 = genId(), uid2 = genId(), uid3 = genId();
+  const tk1 = genId(), tk2 = genId(), tk3 = genId();
+  const lid1 = genId(), lid2a = genId(), lid2b = genId(), lid3a = genId(), lid3b = genId(), lid3c = genId();
+
+  const ordId1 = genId();
+
+  const ejendomme = [
+    { id:eid1, navn:'E/F Bernstorffsgade 23', kortnummer:'N3123', pinkode:'999', fabrikantEmail:'evva@ahlsell.dk', adminEmail:'kwk@blomfelt.dk', adminNavn:'Karoline Wittstrøm Klamer' },
+    { id:eid2, navn:'A/B Østerbrogade 44', kortnummer:'M7821', pinkode:'1234', fabrikantEmail:'evva@ahlsell.dk', adminEmail:'kwk@blomfelt.dk', adminNavn:'Karoline Wittstrøm Klamer' },
+  ];
+
+  const beboere = [
+    { id:uid1, token:tk1, navn:'Anna Petersen', email:'anna@example.com', telefon:'23456789',
+      lejligheder:[{ id:lid1, ejendommId:eid1, lejlighedNr:'2. tv', postboxNavn:'Petersen', nøglekode:'C0493P / 2.1.3' }] },
+    { id:uid2, token:tk2, navn:'Lars Møller', email:'lars@example.com', telefon:'34567890',
+      lejligheder:[
+        { id:lid2a, ejendommId:eid1, lejlighedNr:'4. th', postboxNavn:'Møller', nøglekode:'C0493P / 4.2.1' },
+        { id:lid2b, ejendommId:eid2, lejlighedNr:'1. mf', postboxNavn:'L. Møller', nøglekode:'C0882P / 1.1.2' }
+      ] },
+    { id:uid3, token:tk3, navn:'Sofie Berg', email:'sofie@example.com', telefon:'45678901',
+      lejligheder:[
+        { id:lid3a, ejendommId:eid1, lejlighedNr:'3. tv', postboxNavn:'Berg', nøglekode:'C0493P / 3.1.3' },
+        { id:lid3b, ejendommId:eid1, lejlighedNr:'3. th', postboxNavn:'Berg Erhverv', nøglekode:'C0493P / 3.2.1' },
+        { id:lid3c, ejendommId:eid2, lejlighedNr:'2. tv', postboxNavn:'S. Berg', nøglekode:'C0882P / 2.1.4' }
+      ] },
+  ];
+
+  const now = new Date().toISOString();
+  const bestillinger = [
+    { id:ordId1, beboerId:uid1, lejlighedId:lid1, ejendommId:eid1,
+      antal:2, nøglekode:'C0493P / 2.1.3',
+      leveringsadresse:'Bernstorffsgade 23, 2. tv, 1577 København V',
+      postboxNavn:'Petersen', bemærkning:'',
+      oprettet: new Date(Date.now()-5*24*60*60*1000).toISOString(),
+      status:'bekræftet',
+      statusHistorik:[
+        { status:'anmodet', dato: new Date(Date.now()-5*24*60*60*1000).toISOString(), note:'' },
+        { status:'bestilt', dato: new Date(Date.now()-4*24*60*60*1000).toISOString(), note:'' },
+        { status:'bekræftet', dato: new Date(Date.now()-2*24*60*60*1000).toISOString(), note:'Forventet levering: 20. april' }
+      ] }
+  ];
+
+  return { ejendomme, beboere, bestillinger };
+};
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) {
+      const d = INITIAL_DATA();
+      saveData(d);
+      return d;
+    }
+    const parsed = JSON.parse(raw);
+    // Validate schema — if missing required keys, reseed
+    if (!parsed.ejendomme || !parsed.beboere || !parsed.bestillinger) {
+      const d = INITIAL_DATA();
+      saveData(d);
+      return d;
+    }
+    return parsed;
+  } catch(e) {
+    // localStorage blocked (e.g. private browsing) or corrupt — use in-memory
+    return INITIAL_DATA();
+  }
+}
+
+function saveData(d) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(d));
+}
+
+let DB = loadData();
+
+function getEjendom(id) { return DB.ejendomme.find(e=>e.id===id) }
+function getBeboer(id) { return DB.beboere.find(b=>b.id===id) }
+function getBeboerByToken(token) { return DB.beboere.find(b=>b.token===token) }
+function getLejlighed(beboer, lid) { return beboer.lejligheder.find(l=>l.id===lid) }
+
+// ═══════════════════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════════════════
+let currentResident = null;
+let selectedLejlighed = null;
+let pendingOrder = null;
+let emailsSent = { fab:false, kvit:false, admin:false };
+let adminLoggedIn = false;
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  const isAdmin = params.get('admin');
+
+  if (isAdmin === 'true') {
+    show('admin-view');
+    return;
+  }
+
+  if (token) {
+    const resident = getBeboerByToken(token);
+    if (resident) {
+      currentResident = resident;
+      startResidentFlow();
+      return;
+    }
+  }
+
+  // Landing
+  show('landing-view');
+  renderDemoResidentList();
+}
+
+function show(id) {
+  ['landing-view','resident-view','admin-view'].forEach(v=>{
+    document.getElementById(v).classList.add('hidden');
+  });
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function goHome() {
+  // Navigate to base URL
+  window.location.href = window.location.pathname;
+}
+
+// ═══════════════════════════════════════════════════════════
+// LANDING
+// ═══════════════════════════════════════════════════════════
+function renderDemoResidentList() {
+  const container = document.getElementById('demo-resident-list');
+  container.innerHTML = DB.beboere.map(b => {
+    const link = buildMagicLink(b.token);
+    return `<div class="demo-resident-row">
+      <div>
+        <div class="demo-resident-name">${esc(b.navn)}</div>
+        <div class="demo-resident-email">${esc(b.email)} &middot; ${b.lejligheder.length} lejlighed${b.lejligheder.length>1?'er':''}</div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="openDemoLink('${esc(b.token)}')">Åbn →</button>
+    </div>`;
+  }).join('');
+}
+
+function buildMagicLink(token) {
+  return `${location.origin}${location.pathname}?token=${token}`;
+}
+
+function openDemoLink(token) {
+  window.location.href = `?token=${token}`;
+}
+
+function toggleDemoPanel() {
+  const p = document.getElementById('demo-panel');
+  p.classList.toggle('hidden');
+}
+
+// ═══════════════════════════════════════════════════════════
+// RESIDENT FLOW
+// ═══════════════════════════════════════════════════════════
+function startResidentFlow() {
+  show('resident-view');
+  document.getElementById('header-resident-name').textContent = currentResident.navn;
+
+  if (currentResident.lejligheder.length === 1) {
+    selectedLejlighed = currentResident.lejligheder[0];
+    showStep('form');
+  } else {
+    selectedLejlighed = currentResident.lejligheder[0];
+    showStep('apt');
+  }
+}
+
+function startNewOrder() {
+  if (currentResident.lejligheder.length === 1) {
+    selectedLejlighed = currentResident.lejligheder[0];
+    showStep('form');
+  } else {
+    selectedLejlighed = currentResident.lejligheder[0];
+    showStep('apt');
+  }
+}
+
+function showStep(step) {
+  const steps = ['apt','form','email','confirm','orders'];
+  steps.forEach(s => {
+    document.getElementById('step-'+s).classList.add('hidden');
+  });
+  document.getElementById('step-'+step).classList.remove('hidden');
+  renderStepIndicator(step);
+  window.scrollTo(0,0);
+
+  if (step === 'form') renderOrderForm();
+  if (step === 'email') renderEmailStep();
+  if (step === 'confirm') renderConfirmStep();
+  if (step === 'orders') renderOrderHistory();
+  if (step === 'apt') renderAptSelector();
+}
+
+function renderStepIndicator(current) {
+  // Only show for order flow steps
+  const flowSteps = [
+    { key:'apt', label:'Lejlighed' },
+    { key:'form', label:'Bestilling' },
+    { key:'email', label:'E-mails' },
+    { key:'confirm', label:'Bekræftelse' },
+  ];
+  const orderFlow = ['apt','form','email','confirm'];
+  const idx = orderFlow.indexOf(current);
+
+  if (current === 'orders' || idx === -1) {
+    document.getElementById('step-indicator').innerHTML = '';
+    return;
+  }
+  // Hide apt step in indicator if only 1 lejlighed
+  const stepsToShow = currentResident.lejligheder.length > 1 ? flowSteps : flowSteps.slice(1);
+  const el = document.getElementById('step-indicator');
+  el.innerHTML = stepsToShow.map((s,i) => {
+    const globalIdx = flowSteps.indexOf(s);
+    const curIdx = currentResident.lejligheder.length > 1 ? idx : idx - 1;
+    let cls = 'step-item';
+    if (i < curIdx) cls += ' done';
+    else if (i === curIdx) cls += ' active';
+    return `${i>0?'<div class="step-sep"></div>':''}<div class="${cls}"><div class="step-num">${i<curIdx?'✓':i+1}</div>${s.label}</div>`;
+  }).join('');
+}
+
+// ── Apartment Selector ───────────────────────────────────
+function renderAptSelector() {
+  const grid = document.getElementById('apt-grid');
+  grid.innerHTML = currentResident.lejligheder.map((l,i) => {
+    const ej = getEjendom(l.ejendommId);
+    return `<div class="apt-card ${i===0?'selected':''}" id="apt-card-${l.id}" onclick="selectApt('${l.id}')">
+      <div class="apt-card-prop">${esc(ej?ej.navn:'Ukendt ejendom')}</div>
+      <div class="apt-card-num">${esc(l.lejlighedNr)}</div>
+      <div class="apt-card-code">${esc(l.nøglekode)}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectApt(lid) {
+  selectedLejlighed = currentResident.lejligheder.find(l=>l.id===lid);
+  document.querySelectorAll('.apt-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('apt-card-'+lid).classList.add('selected');
+  // Auto-advance after 300ms
+  clearTimeout(window._aptTimer);
+  window._aptTimer = setTimeout(()=>confirmAptSelection(), 300);
+}
+
+function confirmAptSelection() {
+  showStep('form');
+}
+
+// ── Order Form ───────────────────────────────────────────
+function renderOrderForm() {
+  const ej = getEjendom(selectedLejlighed.ejendommId);
+  // Apt pill
+  const pillHtml = `<div class="apt-pill">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    ${esc(ej?ej.navn:'')} · ${esc(selectedLejlighed.lejlighedNr)}
+    ${currentResident.lejligheder.length>1?`<button class="skift-btn" onclick="showStep('apt')">skift</button>`:''}
+  </div>`;
+  document.getElementById('apt-pill-container').innerHTML = pillHtml;
+
+  // Pre-fill
+  document.getElementById('f-navn').value = currentResident.navn;
+  document.getElementById('f-email').value = currentResident.email;
+  document.getElementById('f-noeglekode').value = selectedLejlighed.nøglekode || '';
+  document.getElementById('f-adresse').value = ej ? `${ej.navn.replace(/^[A-Z\/]+\s/,'')} ${selectedLejlighed.lejlighedNr}` : selectedLejlighed.lejlighedNr;
+  document.getElementById('f-postbox').value = selectedLejlighed.postboxNavn || '';
+  document.getElementById('f-antal').value = '1';
+  document.getElementById('f-bemaerkning').value = '';
+}
+
+function changeAntal(delta) {
+  const el = document.getElementById('f-antal');
+  const v = Math.max(1, Math.min(5, parseInt(el.value||1) + delta));
+  el.value = v;
+}
+
+function submitOrder(e) {
+  e.preventDefault();
+  const ej = getEjendom(selectedLejlighed.ejendommId);
+  const now = new Date().toISOString();
+  const orderId = genId();
+
+  pendingOrder = {
+    id: orderId,
+    beboerId: currentResident.id,
+    lejlighedId: selectedLejlighed.id,
+    ejendommId: selectedLejlighed.ejendommId,
+    antal: parseInt(document.getElementById('f-antal').value),
+    nøglekode: document.getElementById('f-noeglekode').value.trim(),
+    leveringsadresse: document.getElementById('f-adresse').value.trim(),
+    postboxNavn: document.getElementById('f-postbox').value.trim(),
+    bemærkning: document.getElementById('f-bemaerkning').value.trim(),
+    oprettet: now,
+    status: 'anmodet',
+    statusHistorik: [{ status:'anmodet', dato:now, note:'' }]
+  };
+
+  emailsSent = { fab:false, kvit:false, admin:false };
+  showStep('email');
+}
+
+// ── Email Step ───────────────────────────────────────────
+function renderEmailStep() {
+  const ej = getEjendom(pendingOrder.ejendommId);
+  const list = document.getElementById('email-step-list');
+  const emails = [
+    {
+      key:'fab',
+      title:'Send til fabrikant',
+      to: ej ? ej.fabrikantEmail : 'evva@ahlsell.dk',
+      subject: `Nøglebestilling – ${ej?ej.navn:''} – ${currentResident.navn}`,
+      body: buildFabrikantEmail(ej)
+    },
+    {
+      key:'kvit',
+      title:'Send kvittering til dig selv',
+      to: currentResident.email,
+      subject: `Kvittering for nøglebestilling – ${ej?ej.navn:''}`,
+      body: buildKvitteringEmail(ej)
+    },
+    {
+      key:'admin',
+      title:'Send notifikation til administrator',
+      to: ej ? ej.adminEmail : 'kwk@blomfelt.dk',
+      subject: `Ny nøglebestilling – ${ej?ej.navn:''} – ${currentResident.navn}`,
+      body: buildAdminEmail(ej)
+    }
+  ];
+
+  list.innerHTML = emails.map(em => `
+    <div class="email-step-row" id="email-row-${em.key}">
+      <div class="email-step-info">
+        <div class="email-step-title">${esc(em.title)}</div>
+        <div class="email-step-to">Til: ${esc(em.to)}</div>
+      </div>
+      <a class="btn btn-outline btn-sm" id="email-btn-${em.key}"
+        href="mailto:${encodeURIComponent(em.to)}?subject=${encodeURIComponent(em.subject)}&body=${encodeURIComponent(em.body)}"
+        onclick="markEmailSent('${em.key}')">
+        Åbn i e-mailprogram
+      </a>
+    </div>`).join('');
+  checkFinishBtn();
+}
+
+function markEmailSent(key) {
+  emailsSent[key] = true;
+  const btn = document.getElementById('email-btn-'+key);
+  const row = document.getElementById('email-row-'+key);
+  btn.textContent = '✓ Sendt';
+  btn.classList.remove('btn-outline');
+  btn.classList.add('btn-success','done');
+  row.style.borderColor = '#bbf7d0';
+  row.style.background = '#f0fdf4';
+  checkFinishBtn();
+}
+
+function checkFinishBtn() {
+  const done = emailsSent.fab && emailsSent.kvit && emailsSent.admin;
+  document.getElementById('finish-btn').disabled = !done;
+}
+
+function finishOrder() {
+  // Save order to DB
+  DB.bestillinger.push(pendingOrder);
+  saveData(DB);
+  showStep('confirm');
+}
+
+// ── Email templates ──────────────────────────────────────
+function buildFabrikantEmail(ej) {
+  const o = pendingOrder;
+  const lejl = getLejlighed(currentResident, o.lejlighedId);
+  return `Til Evva / Ahlsell
+
+NØGLEBESTILLING
+
+Ejendom: ${ej?ej.navn:''}
+Kortnummer: ${ej?ej.kortnummer:''}
+Pinkode: ${ej?ej.pinkode:''}
+
+Beboer: ${currentResident.navn}
+Lejlighed: ${lejl?lejl.lejlighedNr:''}
+Nøglekode: ${o.nøglekode}
+Antal kopier: ${o.antal}
+
+Leveringsadresse:
+${o.leveringsadresse}
+Navn på postkasse: ${o.postboxNavn}
+
+${o.bemærkning?'Bemærkninger:\n'+o.bemærkning+'\n\n':''}Bestillings-ID: ${o.id}
+Bestillingsdato: ${formatDate(o.oprettet)}
+
+Med venlig hilsen
+Blomfelt Ejendomsadministration
+Dronningens Tværgade 30, 5.
+1302 København K
+Tlf. 70 20 91 20
+info@blomfelt.dk`;
+}
+
+function buildKvitteringEmail(ej) {
+  const o = pendingOrder;
+  return `Kære ${currentResident.navn},
+
+Vi bekræfter hermed modtagelsen af din nøglebestilling.
+
+BESTILLINGSDETALJER:
+──────────────────────────────
+Bestillings-ID: ${o.id}
+Bestillingsdato: ${formatDate(o.oprettet)}
+Ejendom: ${ej?ej.navn:''}
+Lejlighed: ${getLejlighed(currentResident,o.lejlighedId)?.lejlighedNr||''}
+Nøglekode: ${o.nøglekode}
+Antal nøgler: ${o.antal}
+Leveringsadresse: ${o.leveringsadresse}
+──────────────────────────────
+
+Din bestilling er nu sendt til fabrikanten. Du vil modtage nøglerne med posten til ovenstående adresse.
+
+Efterfølgende vil du modtage en opkrævning fra Blomfelt for nøglerne.
+
+Har du spørgsmål, er du velkommen til at kontakte os.
+
+Med venlig hilsen
+Blomfelt Ejendomsadministration
+Dronningens Tværgade 30, 5.
+1302 København K
+Tlf. 70 20 91 20`;
+}
+
+function buildAdminEmail(ej) {
+  const o = pendingOrder;
+  return `Hej ${ej?ej.adminNavn:''},
+
+Der er indkommet en ny nøglebestilling.
+
+BESTILLINGSDETALJER:
+──────────────────────────────
+Bestillings-ID: ${o.id}
+Bestillingsdato: ${formatDate(o.oprettet)}
+Beboer: ${currentResident.navn} (${currentResident.email})
+Ejendom: ${ej?ej.navn:''}
+Lejlighed: ${getLejlighed(currentResident,o.lejlighedId)?.lejlighedNr||''}
+Nøglekode: ${o.nøglekode}
+Antal: ${o.antal}
+Leveringsadresse: ${o.leveringsadresse}
+Postkassenavn: ${o.postboxNavn}
+${o.bemærkning?'\nBemærkninger: '+o.bemærkning:''}
+──────────────────────────────
+
+Bestillingen er videresendt til fabrikanten af beboeren.
+
+Med venlig hilsen
+Blomfelt-systemet`;
+}
+
+// ── Confirmation ─────────────────────────────────────────
+function renderConfirmStep() {
+  const ej = getEjendom(pendingOrder.ejendommId);
+  const lejl = getLejlighed(currentResident, pendingOrder.lejlighedId);
+  document.getElementById('confirm-order-summary').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+      <span class="font-semibold text-sm" style="color:var(--gray-600)">Bestillingsoversigt</span>
+      ${statusBadge(pendingOrder.status)}
+    </div>
+    <div class="order-summary-grid">
+      <span class="osg-label">Bestillings-ID</span><span class="osg-value"><code style="font-size:.8rem;background:var(--gray-100);padding:.1rem .4rem;border-radius:4px">${pendingOrder.id}</code></span>
+      <span class="osg-label">Ejendom</span><span class="osg-value">${esc(ej?ej.navn:'')}</span>
+      <span class="osg-label">Lejlighed</span><span class="osg-value">${esc(lejl?lejl.lejlighedNr:'')}</span>
+      <span class="osg-label">Nøglekode</span><span class="osg-value">${esc(pendingOrder.nøglekode)}</span>
+      <span class="osg-label">Antal</span><span class="osg-value">${pendingOrder.antal}</span>
+      <span class="osg-label">Dato</span><span class="osg-value">${formatDate(pendingOrder.oprettet)}</span>
+    </div>`;
+}
+
+function showOrders() {
+  showStep('orders');
+}
+
+// ── Order History ────────────────────────────────────────
+function renderOrderHistory() {
+  const orders = DB.bestillinger.filter(o=>o.beboerId===currentResident.id)
+    .sort((a,b)=>new Date(b.oprettet)-new Date(a.oprettet));
+  const container = document.getElementById('order-list');
+  const empty = document.getElementById('order-list-empty');
+  if (!orders.length) {
+    container.innerHTML=''; empty.classList.remove('hidden'); return;
+  }
+  empty.classList.add('hidden');
+  container.innerHTML = orders.map(o=>buildOrderCard(o)).join('');
+}
+
+function buildOrderCard(o) {
+  const ej = getEjendom(o.ejendommId);
+  const lejl = currentResident.lejligheder.find(l=>l.id===o.lejlighedId);
+  const allStatuses = ['anmodet','bestilt','bekræftet','afsendt','modtaget','opkrævet'];
+  const isCancelled = o.status==='annulleret';
+  const curIdx = allStatuses.indexOf(o.status);
+
+  const timeline = isCancelled
+    ? `<div style="margin-top:.75rem;padding:.75rem;background:#fff5f5;border-radius:var(--radius);border:1px solid #fecaca;font-size:.8rem;color:#b91c1c;text-align:center">Annulleret</div>`
+    : `<div class="status-timeline">${allStatuses.map((s,i)=>{
+      let cls='timeline-step';
+      if(i<curIdx) cls+=' done'; else if(i===curIdx) cls+=' current';
+      const note = o.statusHistorik?.find(h=>h.status===s)?.note||'';
+      return `<div class="${cls}">
+        <div class="timeline-dot">${i<curIdx?'✓':i+1}</div>
+        <div class="timeline-label">${statusLabel(s)}${note?`<br><span style="color:var(--gray-400);font-weight:400">${esc(note)}</span>`:''}</div>
+      </div>`;
+    }).join('')}</div>`;
+
+  return `<div class="order-history-item">
+    <div class="order-history-header" onclick="toggleOrderCard(this)">
+      <div class="ohi-main">
+        <div class="ohi-title">${esc(ej?ej.navn:'')} · ${esc(lejl?lejl.lejlighedNr:'')}</div>
+        <div class="ohi-sub">${formatDate(o.oprettet)} · ${o.antal} nøgle${o.antal>1?'r':''} · ${esc(o.nøglekode)}</div>
+      </div>
+      ${statusBadge(o.status)}
+      <svg class="ohi-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="order-history-body">
+      ${timeline}
+      <div class="order-summary-grid mt-4" style="font-size:.85rem">
+        <span class="osg-label">Bestillings-ID</span><span class="osg-value"><code style="font-size:.78rem;background:var(--gray-100);padding:.1rem .4rem;border-radius:4px">${o.id}</code></span>
+        <span class="osg-label">Nøglekode</span><span class="osg-value">${esc(o.nøglekode)}</span>
+        <span class="osg-label">Leveringsadresse</span><span class="osg-value">${esc(o.leveringsadresse)}</span>
+        <span class="osg-label">Postkasse</span><span class="osg-value">${esc(o.postboxNavn)}</span>
+        ${o.bemærkning?`<span class="osg-label">Bemærkninger</span><span class="osg-value">${esc(o.bemærkning)}</span>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleOrderCard(header) {
+  const body = header.nextElementSibling;
+  const chev = header.querySelector('.ohi-chevron');
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════════════════════
+// ADMIN
+// ═══════════════════════════════════════════════════════════
+function adminLogin() {
+  const pw = document.getElementById('admin-pw').value;
+  if (pw === 'admin123') {
+    adminLoggedIn = true;
+    document.getElementById('admin-login').classList.add('hidden');
+    document.getElementById('admin-panel').classList.remove('hidden');
+    renderAdminPanel();
+  } else {
+    document.getElementById('admin-login-err').classList.remove('hidden');
+  }
+}
+
+function adminLogout() {
+  adminLoggedIn = false;
+  document.getElementById('admin-login').classList.remove('hidden');
+  document.getElementById('admin-panel').classList.add('hidden');
+  document.getElementById('admin-pw').value='';
+}
+
+function adminTab(name, btn) {
+  document.querySelectorAll('#admin-tab-bar .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#admin-panel .tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='ejendomme') renderEjendommeTab();
+  if(name==='beboere') renderBeboereTab();
+  if(name==='bestillinger') renderBestillingerTab();
+  if(name==='demo') renderDemoTab();
+}
+
+function renderAdminPanel() {
+  renderEjendommeTab();
+  renderBestillingerFilterOptions();
+}
+
+// ── Ejendomme Tab ────────────────────────────────────────
+function renderEjendommeTab() {
+  const tbody = document.querySelector('#ejendomme-table tbody');
+  tbody.innerHTML = DB.ejendomme.map(e=>`<tr>
+    <td><span class="font-medium">${esc(e.navn)}</span></td>
+    <td><code class="tag">${esc(e.kortnummer)}</code></td>
+    <td>${esc(e.pinkode)}</td>
+    <td>${esc(e.fabrikantEmail)}</td>
+    <td><span style="font-size:.8rem">${esc(e.adminNavn)}<br><span class="text-muted">${esc(e.adminEmail)}</span></span></td>
+    <td><div class="actions-col">
+      <button class="btn btn-sm btn-secondary" onclick="openEjendomModal('${e.id}')">Rediger</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteEjendom('${e.id}')">Slet</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function openEjendomModal(id) {
+  const e = id ? getEjendom(id) : null;
+  const title = e ? 'Rediger ejendom' : 'Tilføj ejendom';
+  const body = `
+    <div class="form-group"><label>Navn</label><input type="text" id="mf-navn" value="${esc(e?e.navn:'')}"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Kortnummer</label><input type="text" id="mf-kort" value="${esc(e?e.kortnummer:'')}"/></div>
+      <div class="form-group"><label>Pinkode</label><input type="text" id="mf-pin" value="${esc(e?e.pinkode:'')}"/></div>
+    </div>
+    <div class="form-group"><label>Fabrikant e-mail</label><input type="email" id="mf-fab" value="${esc(e?e.fabrikantEmail:'')}"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Admin e-mail</label><input type="email" id="mf-adm" value="${esc(e?e.adminEmail:'')}"/></div>
+      <div class="form-group"><label>Admin navn</label><input type="text" id="mf-admn" value="${esc(e?e.adminNavn:'')}"/></div>
+    </div>`;
+  const actions = `
+    <button class="btn btn-secondary" onclick="closeModal()">Annuller</button>
+    <button class="btn btn-primary" onclick="saveEjendom(${id?`'${id}'`:'null'})">Gem</button>`;
+  openModal(title, body, actions);
+}
+
+function saveEjendom(id) {
+  const data = {
+    navn: document.getElementById('mf-navn').value.trim(),
+    kortnummer: document.getElementById('mf-kort').value.trim(),
+    pinkode: document.getElementById('mf-pin').value.trim(),
+    fabrikantEmail: document.getElementById('mf-fab').value.trim(),
+    adminEmail: document.getElementById('mf-adm').value.trim(),
+    adminNavn: document.getElementById('mf-admn').value.trim(),
+  };
+  if (!data.navn) { toast('Udfyld ejendomsnavn','error'); return; }
+  if (id) {
+    const idx = DB.ejendomme.findIndex(e=>e.id===id);
+    DB.ejendomme[idx] = { ...DB.ejendomme[idx], ...data };
+  } else {
+    DB.ejendomme.push({ id:genId(), ...data });
+  }
+  saveData(DB);
+  closeModal();
+  renderEjendommeTab();
+  renderBestillingerFilterOptions();
+  toast('Ejendom gemt');
+}
+
+function deleteEjendom(id) {
+  if (!confirm('Slet denne ejendom? Beboere tilknyttet ejendommen beholder deres data, men ejendommen slettes.')) return;
+  DB.ejendomme = DB.ejendomme.filter(e=>e.id!==id);
+  saveData(DB);
+  renderEjendommeTab();
+  toast('Ejendom slettet');
+}
+
+// ── Beboere Tab ──────────────────────────────────────────
+function renderBeboereTab() {
+  const tbody = document.querySelector('#beboere-table tbody');
+  tbody.innerHTML = DB.beboere.map(b=>{
+    const apts = b.lejligheder.map(l=>{
+      const ej = getEjendom(l.ejendommId);
+      return `<div style="font-size:.8rem;margin-bottom:.2rem"><span class="tag">${esc(l.lejlighedNr)}</span> ${esc(ej?ej.navn:'?')}</div>`;
+    }).join('');
+    return `<tr>
+      <td><span class="font-medium">${esc(b.navn)}</span></td>
+      <td>${esc(b.email)}</td>
+      <td>${esc(b.telefon||'')}</td>
+      <td>${apts}</td>
+      <td><div class="actions-col">
+        <button class="btn btn-sm btn-secondary" onclick="openBeboerModal('${b.id}')">Rediger</button>
+        <button class="btn btn-sm btn-outline" onclick="copyMagicLink('${b.token}')">Kopier link</button>
+        <button class="btn btn-sm btn-secondary" onclick="sendInvitationEmail('${b.id}')">Send invitation</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteBeboer('${b.id}')">Slet</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function openBeboerModal(id) {
+  const b = id ? getBeboer(id) : null;
+  const title = b ? 'Rediger beboer' : 'Tilføj beboer';
+  const apts = b ? b.lejligheder : [];
+  const ejOptions = DB.ejendomme.map(e=>`<option value="${e.id}">${esc(e.navn)}</option>`).join('');
+
+  const escapedEjOptions = ejOptions.replace(/'/g, '&#39;');
+  const aptsHtml = '<div id="bm-apts">' + apts.map((l,i)=>buildAptRow(l,i,ejOptions)).join('') + '</div>'
+    + '<button type="button" class="btn btn-sm btn-secondary mt-2" onclick="addAptRow(\'' + escapedEjOptions + '\')">+ Tilføj lejlighed</button>';
+
+  const body = `
+    <div class="form-row">
+      <div class="form-group"><label>Navn</label><input type="text" id="bm-navn" value="${esc(b?b.navn:'')}"/></div>
+      <div class="form-group"><label>E-mail</label><input type="email" id="bm-email" value="${esc(b?b.email:'')}"/></div>
+    </div>
+    <div class="form-group"><label>Telefon</label><input type="tel" id="bm-tlf" value="${esc(b?b.telefon:'')}"/></div>
+    <hr class="divider"/>
+    <div style="font-weight:600;font-size:.9rem;margin-bottom:.75rem;color:var(--primary)">Lejligheder</div>
+    ${aptsHtml}`;
+
+  const actions = `
+    <button class="btn btn-secondary" onclick="closeModal()">Annuller</button>
+    <button class="btn btn-primary" onclick="saveBeboer(${id ? "'" + id + "'" : 'null'})">Gem</button>`;
+  openModal(title, body, actions);
+}
+
+function buildAptRow(l, i, ejOptions) {
+  const selOpts = DB.ejendomme.map(e=>`<option value="${e.id}"${l&&l.ejendommId===e.id?' selected':''}>${esc(e.navn)}</option>`).join('');
+  return `<div class="apt-row" data-apt-idx="${i}" style="border:1px solid var(--gray-200);border-radius:var(--radius);padding:.875rem;margin-bottom:.625rem;background:var(--gray-50)">
+    <div class="form-row">
+      <div class="form-group mb-2"><label class="text-xs">Ejendom</label>
+        <select class="apt-ej">${selOpts}</select></div>
+      <div class="form-group mb-2"><label class="text-xs">Lejlighedsnr.</label>
+        <input type="text" class="apt-nr" value="${esc(l?l.lejlighedNr:'')}"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group mb-2"><label class="text-xs">Postkassenavn</label>
+        <input type="text" class="apt-pb" value="${esc(l?l.postboxNavn:'')}"/></div>
+      <div class="form-group mb-2"><label class="text-xs">Nøglekode</label>
+        <input type="text" class="apt-kode" value="${esc(l?l.nøglekode:'')}"/></div>
+    </div>
+    <button type="button" class="btn btn-xs btn-danger" onclick="this.closest('.apt-row').remove()">Fjern</button>
+  </div>`;
+}
+
+function addAptRow(ejOptionsStr) {
+  const container = document.getElementById('bm-apts');
+  const idx = container.querySelectorAll('.apt-row').length;
+  const div = document.createElement('div');
+  div.innerHTML = buildAptRow(null, idx, ejOptionsStr);
+  container.appendChild(div.firstElementChild);
+}
+
+function saveBeboer(id) {
+  const navn = document.getElementById('bm-navn').value.trim();
+  const email = document.getElementById('bm-email').value.trim();
+  const tlf = document.getElementById('bm-tlf').value.trim();
+  if (!navn||!email) { toast('Udfyld navn og e-mail','error'); return; }
+
+  const aptRows = document.querySelectorAll('#bm-apts .apt-row');
+  const lejligheder = [];
+  const existing = id ? getBeboer(id) : null;
+  aptRows.forEach((row,i) => {
+    const existingApts = existing ? existing.lejligheder : [];
+    lejligheder.push({
+      id: existingApts[i]?.id || genId(),
+      ejendommId: row.querySelector('.apt-ej').value,
+      lejlighedNr: row.querySelector('.apt-nr').value.trim(),
+      postboxNavn: row.querySelector('.apt-pb').value.trim(),
+      nøglekode: row.querySelector('.apt-kode').value.trim(),
+    });
+  });
+
+  if (id) {
+    const idx = DB.beboere.findIndex(b=>b.id===id);
+    DB.beboere[idx] = { ...DB.beboere[idx], navn, email, telefon:tlf, lejligheder };
+  } else {
+    DB.beboere.push({ id:genId(), token:genId(), navn, email, telefon:tlf, lejligheder });
+  }
+  saveData(DB);
+  closeModal();
+  renderBeboereTab();
+  toast('Beboer gemt');
+}
+
+function deleteBeboer(id) {
+  if (!confirm('Slet denne beboer?')) return;
+  DB.beboere = DB.beboere.filter(b=>b.id!==id);
+  saveData(DB);
+  renderBeboereTab();
+  toast('Beboer slettet');
+}
+
+function copyMagicLink(token) {
+  const url = buildMagicLink(token);
+  navigator.clipboard.writeText(url).then(()=>toast('Link kopieret til udklipsholder ✓','success')).catch(()=>{
+    prompt('Kopier linket:', url);
+  });
+}
+
+function sendInvitationEmail(id) {
+  const b = getBeboer(id);
+  if (!b) return;
+  const ej = b.lejligheder.length > 0 ? getEjendom(b.lejligheder[0].ejendommId) : null;
+  const link = buildMagicLink(b.token);
+  const subject = `Bestil din nøgle online${ej?' – '+ej.navn:''}`;
+  const body = `Kære ${b.navn},
+
+Du kan nu bestille reservenøgler til din bolig direkte online.
+
+Klik på linket herunder for at komme i gang — dine oplysninger er allerede udfyldt:
+
+${link}
+
+Linket er personligt og giver dig adgang til at:
+• Bestille nye nøgler
+• Følge status på dine bestillinger
+• Se historik over tidligere bestillinger
+
+Har du spørgsmål, er du velkommen til at kontakte os på 70 20 91 20.
+
+Med venlig hilsen
+Blomfelt
+Dronningens Tværgade 30, 5.
+1302 København K`;
+  window.open(`mailto:${encodeURIComponent(b.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+}
+
+// ── Bestillinger Tab ─────────────────────────────────────
+function renderBestillingerFilterOptions() {
+  const sel = document.getElementById('filter-ejendom');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Alle ejendomme</option>' +
+    DB.ejendomme.map(e=>`<option value="${e.id}"${e.id===cur?' selected':''}>${esc(e.navn)}</option>`).join('');
+}
+
+function renderBestillingerTab() {
+  renderBestillingerFilterOptions();
+  const statusF = document.getElementById('filter-status').value;
+  const ejF = document.getElementById('filter-ejendom').value;
+
+  let orders = [...DB.bestillinger].sort((a,b)=>new Date(b.oprettet)-new Date(a.oprettet));
+  if (statusF) orders = orders.filter(o=>o.status===statusF);
+  if (ejF) orders = orders.filter(o=>o.ejendommId===ejF);
+
+  const tbody = document.querySelector('#bestillinger-table tbody');
+  if (!orders.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray-500);padding:2rem">Ingen bestillinger fundet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = orders.map(o=>{
+    const b = getBeboer(o.beboerId);
+    const ej = getEjendom(o.ejendommId);
+    const lejl = b ? b.lejligheder.find(l=>l.id===o.lejlighedId) : null;
+    return `<tr>
+      <td style="white-space:nowrap">${formatDate(o.oprettet)}</td>
+      <td><span class="font-medium">${esc(b?b.navn:'?')}</span><br><span class="text-xs text-muted">${esc(b?b.email:'')}</span></td>
+      <td style="font-size:.85rem">${esc(ej?ej.navn:'?')}</td>
+      <td><span class="tag">${esc(lejl?lejl.lejlighedNr:'?')}</span></td>
+      <td>${o.antal}</td>
+      <td style="font-size:.82rem;font-family:monospace">${esc(o.nøglekode)}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td><div class="actions-col">${adminOrderActions(o)}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+function adminOrderActions(o) {
+  if (o.status==='annulleret') return `<span class="text-xs text-muted">Annulleret</span>`;
+  const actions = [];
+  if (o.status==='anmodet') actions.push(`<button class="btn btn-xs btn-primary" onclick="adminStatusAction('${o.id}','bestilt')">Marker bestilt</button>`);
+  if (o.status==='bestilt') actions.push(`<button class="btn btn-xs btn-primary" onclick="adminStatusAction('${o.id}','bekræftet')">Marker bekræftet</button>`);
+  if (o.status==='bekræftet') actions.push(`<button class="btn btn-xs btn-primary" onclick="adminStatusAction('${o.id}','afsendt')">Marker afsendt</button>`);
+  if (o.status==='afsendt') actions.push(`<button class="btn btn-xs btn-primary" onclick="adminStatusAction('${o.id}','modtaget')">Marker modtaget</button>`);
+  if (o.status==='modtaget') actions.push(`<button class="btn btn-xs btn-success" onclick="adminGenOpkrævning('${o.id}')">Generer opkrævning</button>`);
+  if (o.status!=='opkrævet') actions.push(`<button class="btn btn-xs btn-danger" onclick="adminStatusAction('${o.id}','annulleret')">Annuller</button>`);
+  return actions.join('');
+}
+
+function adminStatusAction(orderId, newStatus) {
+  const o = DB.bestillinger.find(b=>b.id===orderId);
+  if (!o) return;
+  const needsNote = ['bekræftet','bestilt'].includes(newStatus);
+
+  const modalBody = `
+    <p style="color:var(--gray-600);font-size:.9rem;margin-bottom:1rem">
+      Skift status fra <strong>${statusLabel(o.status)}</strong> til <strong>${statusLabel(newStatus)}</strong>?
+    </p>
+    ${needsNote?`<div class="form-group"><label>Valgfri note (f.eks. forventet leveringsdato)</label><input type="text" id="status-note" placeholder="f.eks. Forventet levering: 20. april"/></div>`:''}
+    ${newStatus==='bestilt'?`<div class="info-box mb-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Dette åbner din e-mailklient med en besked til fabrikanten.</span></div>`:''}
+  `;
+  const actions = `
+    <button class="btn btn-secondary" onclick="closeModal()">Annuller</button>
+    <button class="btn btn-primary" onclick="confirmStatusAction('${orderId}','${newStatus}')">Bekræft</button>`;
+  openModal(`Skift status`, modalBody, actions);
+}
+
+function confirmStatusAction(orderId, newStatus) {
+  const o = DB.bestillinger.find(b=>b.id===orderId);
+  const noteEl = document.getElementById('status-note');
+  const note = noteEl ? noteEl.value.trim() : '';
+  o.status = newStatus;
+  o.statusHistorik = o.statusHistorik || [];
+  o.statusHistorik.push({ status:newStatus, dato:new Date().toISOString(), note });
+
+  if (newStatus==='bestilt') {
+    const ej = getEjendom(o.ejendommId);
+    const b = getBeboer(o.beboerId);
+    const lejl = b ? b.lejligheder.find(l=>l.id===o.lejlighedId) : null;
+    const subject = `Nøglebestilling – ${ej?ej.navn:''} – ${b?b.navn:''}`;
+    const body = buildFabrikantEmailAdmin(o,ej,b,lejl);
+    window.open(`mailto:${encodeURIComponent(ej?ej.fabrikantEmail:'')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+  }
+
+  saveData(DB);
+  closeModal();
+  renderBestillingerTab();
+  toast(`Status opdateret: ${statusLabel(newStatus)}`, 'success');
+}
+
+function adminGenOpkrævning(orderId) {
+  const o = DB.bestillinger.find(b=>b.id===orderId);
+  const b = getBeboer(o.beboerId);
+  const ej = getEjendom(o.ejendommId);
+  if (!b||!ej) return;
+
+  const subject = `Opkrævning for nøgle – ${ej.navn}`;
+  const body = `Kære ${b.navn},
+
+Vi sender hermed opkrævning for din nøglebestilling.
+
+BESTILLINGSDETALJER:
+──────────────────────────────
+Bestillings-ID: ${o.id}
+Dato: ${formatDate(o.oprettet)}
+Ejendom: ${ej.navn}
+Antal nøgler: ${o.antal}
+Nøglekode: ${o.nøglekode}
+──────────────────────────────
+
+Vi beder dig om at foretage betaling inden 14 dage.
+
+Har du spørgsmål, er du velkommen til at kontakte os.
+
+Med venlig hilsen
+Blomfelt Ejendomsadministration
+Dronningens Tværgade 30, 5.
+1302 København K
+Tlf. 70 20 91 20`;
+
+  window.open(`mailto:${encodeURIComponent(b.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+
+  o.status = 'opkrævet';
+  o.statusHistorik = o.statusHistorik||[];
+  o.statusHistorik.push({ status:'opkrævet', dato:new Date().toISOString(), note:'' });
+  saveData(DB);
+  renderBestillingerTab();
+  toast('Opkrævningsmail åbnet og status opdateret', 'success');
+}
+
+function buildFabrikantEmailAdmin(o, ej, b, lejl) {
+  return `Til Evva / Ahlsell
+
+NØGLEBESTILLING
+
+Ejendom: ${ej?ej.navn:''}
+Kortnummer: ${ej?ej.kortnummer:''}
+Pinkode: ${ej?ej.pinkode:''}
+
+Beboer: ${b?b.navn:''}
+Lejlighed: ${lejl?lejl.lejlighedNr:''}
+Nøglekode: ${o.nøglekode}
+Antal kopier: ${o.antal}
+
+Leveringsadresse:
+${o.leveringsadresse}
+Navn på postkasse: ${o.postboxNavn}
+
+${o.bemærkning?'Bemærkninger:\n'+o.bemærkning+'\n\n':''}Bestillings-ID: ${o.id}
+Bestillingsdato: ${formatDate(o.oprettet)}
+
+Med venlig hilsen
+Blomfelt Ejendomsadministration
+Dronningens Tværgade 30, 5.
+1302 København K
+Tlf. 70 20 91 20
+info@blomfelt.dk`;
+}
+
+// ── Demo Tab ─────────────────────────────────────────────
+function renderDemoTab() {
+  const container = document.getElementById('demo-links-list');
+  container.innerHTML = DB.beboere.map(b=>{
+    const link = buildMagicLink(b.token);
+    const ej = b.lejligheder.length>0 ? getEjendom(b.lejligheder[0].ejendommId) : null;
+    return `<div class="demo-resident-row">
+      <div>
+        <div class="demo-resident-name">${esc(b.navn)}</div>
+        <div class="demo-resident-email">${esc(b.email)}${ej?' · '+esc(ej.navn):''}</div>
+        <div style="font-size:.7rem;color:var(--gray-400);margin-top:.2rem;word-break:break-all">${link}</div>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-shrink:0">
+        <button class="btn btn-xs btn-outline" onclick="copyMagicLink('${b.token}')">Kopier</button>
+        <button class="btn btn-xs btn-primary" onclick="window.open('?token=${b.token}','_blank')">Åbn</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function resetDemoData() {
+  if (!confirm('Dette nulstiller alle data til demo-data. Fortsæt?')) return;
+  DB = INITIAL_DATA();
+  saveData(DB);
+  renderAdminPanel();
+  renderDemoTab();
+  renderBestillingerFilterOptions();
+  toast('Demo-data nulstillet', 'success');
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════════════════
+function openModal(title, body, actions) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal-actions').innerHTML = actions;
+  document.getElementById('modal-backdrop').classList.remove('hidden');
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-backdrop')) return;
+  document.getElementById('modal-backdrop').classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('da-DK', { day:'numeric', month:'short', year:'numeric' });
+}
+
+function statusLabel(s) {
+  const labels = {
+    anmodet:'Anmodet', bestilt:'Bestilt', bekræftet:'Bekræftet',
+    afsendt:'Afsendt', modtaget:'Modtaget', opkrævet:'Opkrævet', annulleret:'Annulleret'
+  };
+  return labels[s] || s;
+}
+
+function statusBadge(s) {
+  return `<span class="badge badge-${s}"><span class="badge-dot"></span>${statusLabel(s)}</span>`;
+}
+
+function toast(msg, type='') {
+  const container = document.getElementById('toast-container');
+  const div = document.createElement('div');
+  div.className = 'toast' + (type?' '+type:'');
+  div.innerHTML = (type==='success'?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ':'') + esc(msg);
+  container.appendChild(div);
+  setTimeout(()=>{ div.style.opacity='0'; div.style.transition='opacity .3s'; setTimeout(()=>div.remove(),300); }, 2800);
+}
+
+// ═══════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
