@@ -31,15 +31,35 @@ jobs:
 
       - name: Build
         run: |
+          set -e
           mkdir -p dist
+
+          # ── App 1: Nøglebestilling (root) ──────────────────────
           html-minifier-terser index.html \
             --collapse-whitespace \
             --remove-comments \
             --minify-css true \
             --minify-js true \
             --output dist/index.html
-          echo "Original: $(wc -c < index.html) bytes"
-          echo "Minified: $(wc -c < dist/index.html) bytes"
+          echo "Nøglebestilling: $(wc -c < index.html) → $(wc -c < dist/index.html) bytes"
+
+          # ── App 2: Fælleslån (faelleslaan/) ────────────────────
+          if [ -f "faelleslaan/index.html" ]; then
+            mkdir -p dist/faelleslaan
+            html-minifier-terser faelleslaan/index.html \
+              --collapse-whitespace \
+              --remove-comments \
+              --minify-css true \
+              --minify-js true \
+              --output dist/faelleslaan/index.html
+            echo "Fælleslån: $(wc -c < faelleslaan/index.html) → $(wc -c < dist/faelleslaan/index.html) bytes"
+          fi
+
+          # ── Ensure GitHub Pages doesn't try to run Jekyll ──────
+          touch dist/.nojekyll
+
+          echo "─── dist tree ───"
+          find dist -type f | sort
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

@@ -1,0 +1,2604 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fælleslånsopgørelse og indfrielsesberegning for ejerforeninger — Blomfelt A/S">
+<title>Fælleslån — Blomfelt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+/* ───────────────────────────────────────────────────────────
+   BLOMFELT DESIGN TOKENS (from official visual identity)
+   ─────────────────────────────────────────────────────────── */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+:root {
+  /* Primære farver */
+  --blomfelt-green:       #2C403A;
+  --blomfelt-green-dark:  #1e2e2a;
+  --blomfelt-green-light: #3a5248;
+  --blomfelt-green-50:    #eef3f2;
+  --blomfelt-yellow:      #FDF6E1;  /* cream */
+  --blomfelt-yellow-2:    #f5ecd0;
+
+  /* Sekundære */
+  --black: #000000;
+  --white: #ffffff;
+
+  /* Accentfarver */
+  --accent-blue:     #AFD0E7;
+  --accent-coral:    #FFA899;
+  --accent-sunny:    #F9C271;
+  --accent-lavender: #E5C8F8;
+
+  /* Neutrale */
+  --gray-50:  #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+
+  /* Semantiske */
+  --success:    #10b981;
+  --success-bg: #d1fae5;
+  --warning:    #d97706;
+  --warning-bg: #fef3c7;
+  --danger:     #dc2626;
+  --danger-bg:  #fee2e2;
+  --info:       #0369a1;
+  --info-bg:    #e0f2fe;
+
+  /* Radius / skygger */
+  --radius:    8px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+  --shadow:    0 4px 12px rgba(0,0,0,.10);
+  --shadow-lg: 0 8px 28px rgba(0,0,0,.14);
+
+  --transition: 180ms ease;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--blomfelt-yellow);
+  color: var(--gray-900);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ───────────────────────────────────────────────────────────
+   HEADER
+   ─────────────────────────────────────────────────────────── */
+.site-header {
+  background: var(--blomfelt-green);
+  color: #fff;
+  padding: .75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(0,0,0,.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  text-decoration: none;
+  color: #fff;
+}
+
+.logo-mark {
+  width: 36px; height: 36px;
+  background: var(--blomfelt-yellow);
+  border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  color: var(--blomfelt-green);
+  font-size: 20px;
+  letter-spacing: -.5px;
+}
+
+.logo-text { font-size: 1.05rem; font-weight: 700; letter-spacing: -.3px; line-height: 1.1; }
+.logo-sub  { font-size: .7rem; opacity: .75; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; }
+
+.nav { display: flex; gap: 3px; flex-wrap: wrap; }
+.nav button {
+  padding: .5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,.65);
+  font-family: inherit;
+  font-size: .82rem;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: .2px;
+  transition: var(--transition);
+}
+.nav button:hover { background: rgba(255,255,255,.08); color: #fff; }
+.nav button.on {
+  background: rgba(253,246,225,.15);
+  color: var(--blomfelt-yellow);
+  box-shadow: inset 0 0 0 1px rgba(253,246,225,.25);
+}
+
+.header-actions { display: flex; gap: .5rem; align-items: center; }
+
+/* ───────────────────────────────────────────────────────────
+   LAYOUT
+   ─────────────────────────────────────────────────────────── */
+.page-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem 4rem;
+}
+
+.page { display: none; }
+.page.on { display: block; }
+
+.pg-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.pg-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--blomfelt-green);
+  letter-spacing: -.3px;
+}
+.pg-sub { color: var(--gray-600); font-size: .9rem; margin-top: .2rem; }
+
+/* ───────────────────────────────────────────────────────────
+   CARDS
+   ─────────────────────────────────────────────────────────── */
+.card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.card-sm { padding: 1rem 1.25rem; }
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--blomfelt-green);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+}
+.card-title .muted { font-weight: 400; color: var(--gray-500); font-size: .8rem; }
+
+/* ───────────────────────────────────────────────────────────
+   BUTTONS
+   ─────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  padding: .55rem 1.1rem;
+  border-radius: var(--radius);
+  font-size: .85rem;
+  font-weight: 500;
+  font-family: inherit;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn-primary { background: var(--blomfelt-green); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--blomfelt-green-dark); }
+.btn-outline { background: #fff; color: var(--blomfelt-green); border-color: var(--gray-300); }
+.btn-outline:hover:not(:disabled) { background: var(--blomfelt-green-50); border-color: var(--blomfelt-green); }
+.btn-ghost { background: transparent; color: var(--gray-700); }
+.btn-ghost:hover:not(:disabled) { background: var(--gray-100); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover:not(:disabled) { background: #b91c1c; }
+.btn-sunny { background: var(--accent-sunny); color: var(--gray-900); }
+.btn-sunny:hover:not(:disabled) { background: #f5b25b; }
+.btn-sm { padding: .35rem .7rem; font-size: .78rem; }
+.btn-icon { padding: .35rem .5rem; }
+
+/* ───────────────────────────────────────────────────────────
+   FORMS
+   ─────────────────────────────────────────────────────────── */
+.field { margin-bottom: .9rem; }
+.field label {
+  display: block;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: .3rem;
+  letter-spacing: .2px;
+}
+.field small { color: var(--gray-500); font-weight: 400; }
+
+.input, .select, .textarea {
+  width: 100%;
+  padding: .55rem .75rem;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  font-size: .9rem;
+  font-family: inherit;
+  background: #fff;
+  color: var(--gray-900);
+  transition: var(--transition);
+}
+.input:focus, .select:focus, .textarea:focus {
+  outline: none;
+  border-color: var(--blomfelt-green);
+  box-shadow: 0 0 0 3px rgba(44,64,58,.12);
+}
+.input-num { font-variant-numeric: tabular-nums; text-align: right; }
+.textarea { min-height: 80px; resize: vertical; font-family: inherit; }
+
+.row { display: grid; gap: .9rem; }
+.row-2 { grid-template-columns: 1fr 1fr; }
+.row-3 { grid-template-columns: 1fr 1fr 1fr; }
+.row-4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 700px) {
+  .row-2, .row-3, .row-4 { grid-template-columns: 1fr; }
+}
+
+/* ───────────────────────────────────────────────────────────
+   TABLES
+   ─────────────────────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--gray-200); }
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .86rem;
+  background: #fff;
+}
+.table th, .table td {
+  padding: .55rem .75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--gray-200);
+  vertical-align: middle;
+}
+.table th {
+  background: var(--blomfelt-green-50);
+  color: var(--blomfelt-green);
+  font-weight: 600;
+  font-size: .77rem;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+.table tbody tr:hover { background: var(--gray-50); }
+.table tbody tr:last-child td { border-bottom: none; }
+.table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.table .actions { white-space: nowrap; text-align: right; }
+.table tfoot td {
+  background: var(--blomfelt-green-50);
+  font-weight: 700;
+  color: var(--blomfelt-green);
+  border-top: 2px solid var(--blomfelt-green);
+}
+
+/* ───────────────────────────────────────────────────────────
+   BADGES, ALERTS
+   ─────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: .2rem .55rem;
+  border-radius: 99px;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .3px;
+}
+.badge-green { background: var(--blomfelt-green-50); color: var(--blomfelt-green); }
+.badge-warn  { background: var(--warning-bg); color: var(--warning); }
+.badge-danger{ background: var(--danger-bg); color: var(--danger); }
+.badge-info  { background: var(--info-bg); color: var(--info); }
+.badge-muted { background: var(--gray-100); color: var(--gray-600); }
+
+.alert {
+  padding: .9rem 1.1rem;
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  border-left: 3px solid;
+  font-size: .88rem;
+}
+.alert-warn   { background: var(--warning-bg); border-color: var(--warning); color: #78350f; }
+.alert-danger { background: var(--danger-bg);  border-color: var(--danger);  color: #7f1d1d; }
+.alert-info   { background: var(--info-bg);    border-color: var(--info);    color: #0c4a6e; }
+.alert-success{ background: var(--success-bg); border-color: var(--success); color: #064e3b; }
+.alert strong { font-weight: 700; }
+.alert p + p { margin-top: .4rem; }
+
+/* ───────────────────────────────────────────────────────────
+   MODAL
+   ─────────────────────────────────────────────────────────── */
+.modal-bg {
+  position: fixed; inset: 0;
+  background: rgba(30,46,42,.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+  backdrop-filter: blur(2px);
+}
+.modal-bg.on { display: flex; }
+.modal {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-width: 640px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+}
+.modal-wide { max-width: 900px; }
+.modal-head {
+  padding: 1.1rem 1.5rem .75rem;
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-title { font-size: 1.05rem; font-weight: 700; color: var(--blomfelt-green); }
+.modal-body { padding: 1.25rem 1.5rem; }
+.modal-foot {
+  padding: .9rem 1.5rem;
+  border-top: 1px solid var(--gray-200);
+  display: flex;
+  justify-content: flex-end;
+  gap: .5rem;
+}
+.modal-close {
+  background: transparent; border: none;
+  font-size: 1.6rem; line-height: 1;
+  cursor: pointer; color: var(--gray-500);
+  padding: 0 .3rem;
+}
+.modal-close:hover { color: var(--gray-900); }
+
+/* ───────────────────────────────────────────────────────────
+   ACCORDION-style nested lists
+   ─────────────────────────────────────────────────────────── */
+.tree-node {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  margin-bottom: .6rem;
+  background: #fff;
+  overflow: hidden;
+}
+.tree-head {
+  padding: .7rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  cursor: pointer;
+  background: var(--blomfelt-green-50);
+}
+.tree-head:hover { background: #e4ece9; }
+.tree-label { font-weight: 600; color: var(--blomfelt-green); font-size: .92rem; }
+.tree-meta  { color: var(--gray-600); font-size: .8rem; }
+.tree-body  { padding: .9rem 1rem 1rem; display: none; border-top: 1px solid var(--gray-200); }
+.tree-node.open > .tree-body { display: block; }
+.tree-node.open > .tree-head .caret { transform: rotate(90deg); }
+.caret { display: inline-block; transition: transform .2s; color: var(--gray-500); width: 14px; text-align: center; }
+
+/* ───────────────────────────────────────────────────────────
+   FOOTER / PRINT
+   ─────────────────────────────────────────────────────────── */
+.footnote {
+  font-size: .78rem;
+  color: var(--gray-500);
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1rem;
+}
+
+@media print {
+  @page { size: A4; margin: 22mm 18mm 22mm 18mm; }
+  body { background: #fff; font-size: 10pt; color: #000; }
+  .site-header, .nav, .header-actions, .footnote, .no-print { display: none !important; }
+  .page-container { padding: 0; max-width: none; }
+  .page { display: block !important; }
+  .page:not(.print-target) { display: none !important; }
+  .card { box-shadow: none; border: none; padding: 0; margin-bottom: .75rem; page-break-inside: avoid; }
+  .card-title { font-size: 11pt; margin-bottom: .4rem; }
+  .table { font-size: 8.5pt; }
+  .table th { background: var(--blomfelt-green-50); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .print-only { display: block !important; }
+  .pg-head { display: none; }
+  .alert { display: none !important; }
+  a { color: inherit; text-decoration: none; }
+  /* Brevpapir */
+  .brevpapir {
+    display: block !important;
+    border-bottom: 2px solid var(--blomfelt-green);
+    padding-bottom: 10px; margin-bottom: 16px;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .brevpapir-head { display: flex; justify-content: space-between; align-items: flex-end; }
+  .brevpapir-logo { display: flex; align-items: center; gap: 10px; }
+  .brevpapir-logo-mark {
+    width: 36px; height: 36px; background: var(--blomfelt-green); color: var(--blomfelt-yellow);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 20px; border-radius: 6px;
+  }
+  .brevpapir-title { font-weight: 700; color: var(--blomfelt-green); font-size: 14pt; letter-spacing: -.3px; }
+  .brevpapir-sub { font-size: 8pt; letter-spacing: 2px; text-transform: uppercase; color: #666; }
+  .brevpapir-contact { font-size: 8pt; color: #444; text-align: right; line-height: 1.4; }
+  .brevpapir-doc-title { font-size: 13pt; font-weight: 700; color: var(--blomfelt-green); margin-top: 12px; }
+}
+.print-only, .brevpapir { display: none; }
+
+/* ───────────────────────────────────────────────────────────
+   MISC
+   ─────────────────────────────────────────────────────────── */
+.muted { color: var(--gray-500); }
+.mono { font-family: 'Menlo', 'Consolas', ui-monospace, monospace; font-size: .85em; }
+.kbd {
+  font-family: monospace;
+  background: var(--gray-100);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: .82em;
+}
+.hidden { display: none !important; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.flex { display: flex; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.gap-2 { gap: .5rem; }
+.gap-3 { gap: .75rem; }
+.mt-2 { margin-top: .5rem; }
+.mt-3 { margin-top: .75rem; }
+.mt-4 { margin-top: 1rem; }
+.mb-2 { margin-bottom: .5rem; }
+.mb-3 { margin-bottom: .75rem; }
+.mb-4 { margin-bottom: 1rem; }
+.space-y-2 > * + * { margin-top: .5rem; }
+
+.checkbox-list { display: grid; gap: .35rem; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); max-height: 280px; overflow-y: auto; padding: .5rem; border: 1px solid var(--gray-200); border-radius: var(--radius); background: var(--gray-50); }
+.checkbox-list label { display: flex; gap: .5rem; align-items: center; font-size: .85rem; padding: .3rem .4rem; border-radius: 4px; cursor: pointer; }
+.checkbox-list label:hover { background: #fff; }
+.checkbox-list input { cursor: pointer; }
+
+.empty-state {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--gray-500);
+}
+.empty-state h3 { color: var(--gray-700); font-size: 1rem; margin-bottom: .4rem; }
+.empty-state p { font-size: .88rem; }
+</style>
+</head>
+<body>
+
+<!-- ─── HEADER ─────────────────────────────────────────── -->
+<header class="site-header">
+  <a class="logo" href="#">
+    <div class="logo-mark">B</div>
+    <div>
+      <div class="logo-text">Fælleslån</div>
+      <div class="logo-sub">Blomfelt A/S</div>
+    </div>
+  </a>
+
+  <nav class="nav" id="nav"></nav>
+
+  <div class="header-actions">
+    <button class="btn btn-outline btn-sm" id="btn-export" title="Eksportér alle data til Excel">📤 Eksportér</button>
+    <button class="btn btn-outline btn-sm" id="btn-import" title="Importér data fra Excel">📥 Importér</button>
+    <input type="file" id="file-import" accept=".xlsx,.xls" class="hidden">
+  </div>
+</header>
+
+<div class="page-container">
+
+<!-- ─── PAGE: Opsætning ───────────────────────────────── -->
+<section class="page on" id="page-opsaetning">
+  <div class="pg-head">
+    <div>
+      <h1 class="pg-title">Opsætning</h1>
+      <p class="pg-sub">Ejendomme, lån, rente-perioder, ydelser og deltagere.</p>
+    </div>
+    <div>
+      <button class="btn btn-primary btn-sm" id="btn-new-ejendom">+ Ny ejendom</button>
+    </div>
+  </div>
+
+  <div id="tree-ejendomme"></div>
+</section>
+
+<!-- ─── PAGE: Indfrielse ───────────────────────────────── -->
+<section class="page" id="page-indfrielse">
+  <div class="pg-head">
+    <div>
+      <h1 class="pg-title">Indfrielsesberegner</h1>
+      <p class="pg-sub">Beregn indfrielsesbeløb pr. deltager på en valgt dato.</p>
+    </div>
+  </div>
+
+  <div class="alert alert-warn">
+    <strong>⚠ Prototype — skal valideres mod bankens årsopgørelse før ibrugtagning.</strong>
+    <p>Renteberegning bruger <strong>dag-for-dag actual/365</strong> med kvartalsvis kapitalisering og månedlig ydelse.
+    Før denne beregning bruges til en faktisk indfrielse, skal den kontrolleres mod bankens egne opgørelser (reproduktion af mindst én årsopgørelse til øre).</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">1. Vælg lån og dato</div>
+    <div class="row row-3">
+      <div class="field">
+        <label>Lån</label>
+        <select class="select" id="i-lan"></select>
+      </div>
+      <div class="field">
+        <label>Skæringsdato</label>
+        <input class="input" type="date" id="i-dato">
+      </div>
+      <div class="field">
+        <label>Gebyr (valgfrit) <small>— fx bankgebyr</small></label>
+        <input class="input input-num" type="number" id="i-gebyr" step="0.01" value="0">
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="i-vaelg-deltagere-card" style="display:none">
+    <div class="card-title">2. Vælg deltagere der skal indfri</div>
+    <div class="mb-2 flex gap-2 flex-wrap items-center">
+      <button class="btn btn-outline btn-sm" id="i-sel-all">Vælg alle aktive</button>
+      <button class="btn btn-ghost btn-sm" id="i-sel-none">Fravælg alle</button>
+    </div>
+    <div class="checkbox-list" id="i-deltager-list"></div>
+  </div>
+
+  <div class="card" id="i-resultat" style="display:none">
+    <div class="card-title">
+      3. Indfrielsesopgørelse
+      <button class="btn btn-ghost btn-sm no-print" onclick="window.print()">🖨️ Udskriv</button>
+    </div>
+    <div id="i-resultat-body"></div>
+  </div>
+</section>
+
+<!-- ─── PAGE: Opgørelse (periode) ──────────────────────── -->
+<section class="page" id="page-opgorelse">
+  <div class="pg-head">
+    <div>
+      <h1 class="pg-title">Periodeopgørelse</h1>
+      <p class="pg-sub">Opgørelse pr. lån for en given periode — til regnskab og udskrift til ejerne.</p>
+    </div>
+  </div>
+
+  <div class="alert alert-warn">
+    <strong>⚠ Prototype — skal valideres mod bankens årsopgørelse.</strong>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Vælg lån og periode</div>
+    <div class="row row-3">
+      <div class="field">
+        <label>Lån</label>
+        <select class="select" id="o-lan"></select>
+      </div>
+      <div class="field">
+        <label>Fra dato</label>
+        <input class="input" type="date" id="o-fra">
+      </div>
+      <div class="field">
+        <label>Til dato</label>
+        <input class="input" type="date" id="o-til">
+      </div>
+    </div>
+    <div class="mt-3">
+      <button class="btn btn-primary btn-sm" id="o-beregn">Beregn opgørelse</button>
+    </div>
+  </div>
+
+  <div class="card" id="o-resultat" style="display:none">
+    <div class="card-title">
+      Opgørelse
+      <span>
+        <button class="btn btn-outline btn-sm no-print" id="o-export-xlsx">📤 Excel</button>
+        <button class="btn btn-ghost btn-sm no-print" onclick="window.print()">🖨️ Udskriv</button>
+      </span>
+    </div>
+    <div id="o-resultat-body"></div>
+  </div>
+</section>
+
+<!-- ─── PAGE: Bogføring ───────────────────────────────── -->
+<section class="page" id="page-bogforing">
+  <div class="pg-head">
+    <div>
+      <h1 class="pg-title">Bogføring</h1>
+      <p class="pg-sub">Upload bogføringsposter og sammenlign med forventede ydelser og rentetilskrivninger.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Import af bogføring</div>
+    <div class="row row-2">
+      <div class="field">
+        <label>Lån</label>
+        <select class="select" id="b-lan"></select>
+      </div>
+      <div class="field">
+        <label>Fil (Excel eller CSV)</label>
+        <input class="input" type="file" id="b-file" accept=".xlsx,.xls,.csv">
+      </div>
+    </div>
+    <p class="muted" style="font-size:.82rem">
+      Forventede kolonner i regnearket: <span class="kbd">Dato</span>, <span class="kbd">Tekst</span>, <span class="kbd">Beløb</span>, <span class="kbd">Konto</span> (valgfri). Første række skal være overskrifter.
+    </p>
+    <div class="mt-3">
+      <button class="btn btn-primary btn-sm" id="b-import">Importér og match</button>
+    </div>
+  </div>
+
+  <div class="card" id="b-resultat" style="display:none">
+    <div class="card-title">
+      Match mod forventede events
+      <span class="muted" id="b-summary"></span>
+    </div>
+    <div id="b-resultat-body"></div>
+  </div>
+</section>
+
+<!-- ─── PAGE: Data (import/export) ─────────────────────── -->
+<section class="page" id="page-data">
+  <div class="pg-head">
+    <div>
+      <h1 class="pg-title">Data</h1>
+      <p class="pg-sub">Eksportér alt til Excel — redigér lokalt — importér igen for at opdatere systemet.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Eksport</div>
+    <p>Alle ejendomme, lån, rente-perioder, deltagere og bogføringsposter eksporteres som én Excel-fil med ét ark pr. entitet. Du kan redigere filen og importere den igen.</p>
+    <div class="mt-3">
+      <button class="btn btn-primary btn-sm" id="d-export">📤 Eksportér alt som Excel</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Import</div>
+    <div class="alert alert-warn">
+      <strong>⚠ Erstatter alle eksisterende data.</strong> Tag gerne en eksport først som backup. Importen gennemfører kun, hvis alle ark har forventet struktur.
+    </div>
+    <div class="row row-2">
+      <div class="field">
+        <label>Excel-fil</label>
+        <input class="input" type="file" id="d-file" accept=".xlsx,.xls">
+      </div>
+      <div class="field">
+        <label>Import-tilstand</label>
+        <select class="select" id="d-mode">
+          <option value="replace">Erstat alt (full replace)</option>
+          <option value="merge">Flet (bevarer eksisterende, opdaterer på ID)</option>
+        </select>
+      </div>
+    </div>
+    <div class="mt-3">
+      <button class="btn btn-primary btn-sm" id="d-import">📥 Importér</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Demo / valideringsdata</div>
+    <p>Indlæser eksempel-data fra <strong>EF Katrinedalsvej 46</strong> med de tre kendte lån — bruges til at validere beregningerne mod bankens årsopgørelser før værktøjet tages i produktion.</p>
+    <div class="mt-3">
+      <button class="btn btn-sunny btn-sm" id="d-demo">📋 Indlæs demo-data</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Lokalt gemt i browseren</div>
+    <div id="d-info"></div>
+    <div class="mt-3">
+      <button class="btn btn-danger btn-sm" id="d-clear">🗑️ Ryd alle data</button>
+    </div>
+  </div>
+</section>
+
+<div class="footnote">
+  Blomfelt A/S — Fælleslån v1 · Data gemmes lokalt i din browser · <a href="../" style="color:var(--blomfelt-green)">tilbage til forsiden</a>
+</div>
+
+</div><!-- /.page-container -->
+
+<!-- ─── MODAL ──────────────────────────────────────────── -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title">Titel</div>
+      <button class="modal-close" onclick="UI.closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot" id="modal-foot"></div>
+  </div>
+</div>
+
+<script>
+/* ═════════════════════════════════════════════════════════════
+   BLOMFELT FÆLLESLÅN · v1
+   Frontend-only app; data lives in localStorage.
+   XLSX import/export for persistence across devices.
+   ═════════════════════════════════════════════════════════════ */
+'use strict';
+
+/* ═══ UTIL ══════════════════════════════════════════════════ */
+const Util = {
+  uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); },
+
+  /** Format number as Danish DKK with decimals. */
+  fmtKr(n, decimals = 2) {
+    if (n == null || isNaN(n)) return '';
+    return new Intl.NumberFormat('da-DK', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(n);
+  },
+  fmtNum(n, decimals = 2) {
+    if (n == null || isNaN(n)) return '';
+    return new Intl.NumberFormat('da-DK', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(n);
+  },
+  fmtPct(n, decimals = 4) {
+    if (n == null || isNaN(n)) return '';
+    return new Intl.NumberFormat('da-DK', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(n) + ' %';
+  },
+  fmtDate(d) {
+    if (!d) return '';
+    const dt = (d instanceof Date) ? d : new Date(d);
+    if (isNaN(dt)) return String(d);
+    const dd = String(dt.getDate()).padStart(2, '0');
+    const mm = String(dt.getMonth() + 1).padStart(2, '0');
+    return `${dd}.${mm}.${dt.getFullYear()}`;
+  },
+  /** Parse date string (YYYY-MM-DD or DD.MM.YYYY) → Date, noon local. */
+  parseDate(s) {
+    if (!s) return null;
+    if (s instanceof Date) return new Date(s.getFullYear(), s.getMonth(), s.getDate(), 12);
+    s = String(s).trim();
+    let m;
+    if ((m = s.match(/^(\d{4})-(\d{2})-(\d{2})/))) {
+      return new Date(+m[1], +m[2] - 1, +m[3], 12);
+    }
+    if ((m = s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})/))) {
+      return new Date(+m[3], +m[2] - 1, +m[1], 12);
+    }
+    const d = new Date(s);
+    return isNaN(d) ? null : d;
+  },
+  isoDate(d) {
+    if (!d) return '';
+    const dt = (d instanceof Date) ? d : new Date(d);
+    if (isNaN(dt)) return '';
+    return dt.toISOString().slice(0, 10);
+  },
+  daysBetween(a, b) {
+    const A = Util.parseDate(a), B = Util.parseDate(b);
+    if (!A || !B) return 0;
+    return Math.round((B - A) / 86400000);
+  },
+  addMonths(d, n) {
+    const dt = Util.parseDate(d);
+    if (!dt) return null;
+    const r = new Date(dt.getFullYear(), dt.getMonth() + n, dt.getDate(), 12);
+    return r;
+  },
+  /** Last day of month for a date. */
+  lastDayOfMonth(year, month) {
+    return new Date(year, month + 1, 0, 12);
+  },
+  /** End of next quarter that contains/follows given date.
+      Returns 31/3, 30/6, 30/9 or 31/12. */
+  nextQuarterEnd(d) {
+    const dt = Util.parseDate(d);
+    if (!dt) return null;
+    const y = dt.getFullYear();
+    const m = dt.getMonth();
+    const quarterEnds = [
+      new Date(y, 2, 31, 12),   // 31 Mar
+      new Date(y, 5, 30, 12),   // 30 Jun
+      new Date(y, 8, 30, 12),   // 30 Sep
+      new Date(y, 11, 31, 12),  // 31 Dec
+      new Date(y + 1, 2, 31, 12)
+    ];
+    for (const q of quarterEnds) if (q >= dt) return q;
+    return quarterEnds[quarterEnds.length - 1];
+  },
+  /** Previous quarter-end (inclusive: if date is itself quarter-end, returns it). */
+  prevQuarterEnd(d) {
+    const dt = Util.parseDate(d);
+    if (!dt) return null;
+    const y = dt.getFullYear();
+    const quarterEnds = [
+      new Date(y - 1, 11, 31, 12),
+      new Date(y, 2, 31, 12),
+      new Date(y, 5, 30, 12),
+      new Date(y, 8, 30, 12),
+      new Date(y, 11, 31, 12)
+    ];
+    let result = quarterEnds[0];
+    for (const q of quarterEnds) {
+      if (q <= dt) result = q; else break;
+    }
+    return result;
+  },
+  /** Last day of the month of given date. */
+  endOfMonth(d) {
+    const dt = Util.parseDate(d);
+    if (!dt) return null;
+    return Util.lastDayOfMonth(dt.getFullYear(), dt.getMonth());
+  },
+  clamp(n, min, max) { return Math.max(min, Math.min(max, n)); },
+  escHtml(s) {
+    if (s == null) return '';
+    return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  },
+  /** Round to 2 decimals (currency). */
+  r2(n) { return Math.round((+n + Number.EPSILON) * 100) / 100; },
+};
+
+/* ═══ STORAGE ══════════════════════════════════════════════ */
+const Storage = {
+  KEY: 'bf-faelleslaan-v1',
+
+  load() {
+    try {
+      const raw = localStorage.getItem(this.KEY);
+      if (!raw) return this.initial();
+      const data = JSON.parse(raw);
+      return Object.assign(this.initial(), data);
+    } catch (e) {
+      console.error('Storage load failed', e);
+      return this.initial();
+    }
+  },
+  save(data) {
+    try {
+      localStorage.setItem(this.KEY, JSON.stringify(data));
+      return true;
+    } catch (e) {
+      alert('Kunne ikke gemme data: ' + e.message);
+      return false;
+    }
+  },
+  initial() {
+    return {
+      version: 1,
+      ejendomme: [],
+      lan: [],
+      renteperioder: [],   // { id, lan_id, fra, til, rente_pct, ydelse }
+      deltagere: [],        // { id, lan_id, lejl_nr, navn, adresse, fordelingstal, indtradt, udtradt, note }
+      bogforing: [],        // { id, lan_id, dato, type, beloeb, tekst, bilag, match_status }
+      opgorelser: [],       // snapshots (audit)
+      settings: {
+        day_count: 365,     // day-count convention for interest
+        round: 0.01,        // rounding unit
+      }
+    };
+  },
+  clear() {
+    localStorage.removeItem(this.KEY);
+  },
+  size() {
+    const raw = localStorage.getItem(this.KEY);
+    return raw ? raw.length : 0;
+  }
+};
+
+/* ═══ DATA (state + CRUD) ══════════════════════════════════ */
+const Data = (function() {
+  let state = Storage.load();
+
+  function save() { Storage.save(state); }
+  function get() { return state; }
+  function replaceAll(d) { state = Object.assign(Storage.initial(), d); save(); }
+
+  /* --- Ejendom --- */
+  function addEjendom(obj) {
+    obj.id = obj.id || Util.uid();
+    state.ejendomme.push(obj);
+    save();
+    return obj;
+  }
+  function updateEjendom(id, patch) {
+    const e = state.ejendomme.find(x => x.id === id);
+    if (e) Object.assign(e, patch);
+    save();
+  }
+  function deleteEjendom(id) {
+    state.ejendomme = state.ejendomme.filter(e => e.id !== id);
+    const lanIds = state.lan.filter(l => l.ejendom_id === id).map(l => l.id);
+    state.lan = state.lan.filter(l => l.ejendom_id !== id);
+    state.renteperioder = state.renteperioder.filter(r => !lanIds.includes(r.lan_id));
+    state.deltagere = state.deltagere.filter(d => !lanIds.includes(d.lan_id));
+    state.bogforing = state.bogforing.filter(b => !lanIds.includes(b.lan_id));
+    save();
+  }
+
+  /* --- Lån --- */
+  function addLan(obj) {
+    obj.id = obj.id || Util.uid();
+    state.lan.push(obj);
+    save();
+    return obj;
+  }
+  function updateLan(id, patch) {
+    const l = state.lan.find(x => x.id === id);
+    if (l) Object.assign(l, patch);
+    save();
+  }
+  function deleteLan(id) {
+    state.lan = state.lan.filter(l => l.id !== id);
+    state.renteperioder = state.renteperioder.filter(r => r.lan_id !== id);
+    state.deltagere = state.deltagere.filter(d => d.lan_id !== id);
+    state.bogforing = state.bogforing.filter(b => b.lan_id !== id);
+    save();
+  }
+
+  /* --- Renteperiode --- */
+  function addRenteperiode(obj) {
+    obj.id = obj.id || Util.uid();
+    state.renteperioder.push(obj);
+    save();
+    return obj;
+  }
+  function updateRenteperiode(id, patch) {
+    const r = state.renteperioder.find(x => x.id === id);
+    if (r) Object.assign(r, patch);
+    save();
+  }
+  function deleteRenteperiode(id) {
+    state.renteperioder = state.renteperioder.filter(r => r.id !== id);
+    save();
+  }
+
+  /* --- Deltager --- */
+  function addDeltager(obj) {
+    obj.id = obj.id || Util.uid();
+    state.deltagere.push(obj);
+    save();
+    return obj;
+  }
+  function updateDeltager(id, patch) {
+    const d = state.deltagere.find(x => x.id === id);
+    if (d) Object.assign(d, patch);
+    save();
+  }
+  function deleteDeltager(id) {
+    state.deltagere = state.deltagere.filter(d => d.id !== id);
+    save();
+  }
+
+  /* --- Bogføring --- */
+  function setBogforing(lan_id, rows) {
+    state.bogforing = state.bogforing.filter(b => b.lan_id !== lan_id).concat(rows);
+    save();
+  }
+  function clearBogforing(lan_id) {
+    state.bogforing = state.bogforing.filter(b => b.lan_id !== lan_id);
+    save();
+  }
+
+  /* --- Queries --- */
+  function lanForEjendom(ej_id) {
+    return state.lan.filter(l => l.ejendom_id === ej_id);
+  }
+  function renterForLan(lan_id) {
+    return state.renteperioder
+      .filter(r => r.lan_id === lan_id)
+      .slice()
+      .sort((a, b) => (a.fra || '').localeCompare(b.fra || ''));
+  }
+  function deltagereForLan(lan_id) {
+    return state.deltagere
+      .filter(d => d.lan_id === lan_id)
+      .slice()
+      .sort((a, b) => (+a.lejl_nr || 0) - (+b.lejl_nr || 0));
+  }
+  function lanById(id) { return state.lan.find(l => l.id === id); }
+  function ejendomById(id) { return state.ejendomme.find(e => e.id === id); }
+  function bogforingForLan(lan_id) { return state.bogforing.filter(b => b.lan_id === lan_id); }
+
+  return {
+    get, save, replaceAll,
+    addEjendom, updateEjendom, deleteEjendom,
+    addLan, updateLan, deleteLan,
+    addRenteperiode, updateRenteperiode, deleteRenteperiode,
+    addDeltager, updateDeltager, deleteDeltager,
+    setBogforing, clearBogforing,
+    lanForEjendom, renterForLan, deltagereForLan,
+    lanById, ejendomById, bogforingForLan,
+  };
+})();
+
+/* ═══ CALC — amortization simulator ═══════════════════════════
+   Model assumptions (to be validated against bank statements):
+   - Daily interest accrual: saldo * rate / 365 per day
+   - Interest capitalization: on 31/3, 30/6, 30/9, 31/12 (or last banking day — approximated as last of month)
+   - Monthly payment (ydelse) on last day of month
+   - Ydelse covers interest first, then principal (but since interest is only
+     capitalized quarterly, between capitalization months the ydelse effectively
+     reduces principal; on capitalization month the accrued-and-capitalized
+     interest is deducted by the next ydelse first)
+   - On rate change: recalculate ydelse to amortize remaining balance to
+     original end date using annuity formula
+
+   LIMITATIONS (v1):
+   - Does not handle bank holidays (uses last day of month instead of last bank day)
+   - Day-count convention default 365 — some loans use 360
+   - Does not handle interest-only periods or afdragsfrihed
+   ═════════════════════════════════════════════════════════════ */
+const Calc = (function() {
+
+  /** Get interest rate applicable on a given date. */
+  function rateOn(renter, date) {
+    const d = Util.parseDate(date);
+    if (!d) return 0;
+    // sort by fra ascending
+    const sorted = renter.slice().sort((a, b) => (a.fra || '').localeCompare(b.fra || ''));
+    let active = 0;
+    for (const r of sorted) {
+      const fra = Util.parseDate(r.fra);
+      const til = r.til ? Util.parseDate(r.til) : null;
+      if (fra && fra <= d && (!til || til >= d)) active = +r.rente_pct || 0;
+    }
+    return active;
+  }
+
+  /** Get monthly payment (ydelse) applicable on a given date, if specified in rateperiode. */
+  function ydelseOn(renter, date) {
+    const d = Util.parseDate(date);
+    if (!d) return null;
+    const sorted = renter.slice().sort((a, b) => (a.fra || '').localeCompare(b.fra || ''));
+    let active = null;
+    for (const r of sorted) {
+      if (r.ydelse == null || r.ydelse === '') continue;
+      const fra = Util.parseDate(r.fra);
+      const til = r.til ? Util.parseDate(r.til) : null;
+      if (fra && fra <= d && (!til || til >= d)) active = +r.ydelse;
+    }
+    return active;
+  }
+
+  /** Annuity PMT: P * r / (1 - (1+r)^-n). r is per period. */
+  function annuityPmt(P, r, n) {
+    if (r === 0) return P / n;
+    return P * r / (1 - Math.pow(1 + r, -n));
+  }
+
+  /**
+   * Build a day-by-day simulation of the loan from udbetalingsdato to endDate.
+   * Returns array of events + final state.
+   *
+   * Events emitted:
+   *  { date, type: 'start'|'interest_accrue'|'capitalize'|'payment'|'rate_change'|'extra_payment'|'end',
+   *    saldo, rente_pct, accrued, amount, principal, interest }
+   */
+  function simulate(lan, renter, deltagere, endDate, extras = []) {
+    if (!lan || !lan.udbetalingsdato) return { events: [], saldo: 0, error: 'Mangler udbetalingsdato' };
+    const start = Util.parseDate(lan.udbetalingsdato);
+    const end   = Util.parseDate(endDate);
+    if (!start || !end || end < start) return { events: [], saldo: 0, error: 'Ugyldige datoer' };
+
+    const hovedstol = +lan.hovedstol || 0;
+    const slutdato  = Util.parseDate(lan.slutdato);
+    const dayCount  = Data.get().settings.day_count || 365;
+
+    let saldo = hovedstol;
+    let accrued = 0; // accrued interest since last capitalization
+    let currentRate = rateOn(renter, start);
+    const ydelseFrek = lan.ydelse_frekvens || 'maanedlig';
+    let currentYdelse = ydelseOn(renter, start) || annuityRecalc(saldo, currentRate, start, slutdato, ydelseFrek);
+
+    const events = [{
+      date: Util.isoDate(start), type: 'start', saldo: saldo, rente_pct: currentRate,
+      ydelse: currentYdelse, note: 'Udbetaling'
+    }];
+
+    // Build list of all event dates between start and end
+    const calendar = buildCalendar(start, end, renter, extras, slutdato, ydelseFrek);
+
+    let lastDate = start;
+    let lastYdelseAfdrag = 0;
+
+    for (const ev of calendar) {
+      const days = Util.daysBetween(lastDate, ev.date);
+      if (days > 0 && saldo > 0) {
+        // accrue interest for these days
+        const dailyInt = saldo * (currentRate / 100) / dayCount;
+        accrued += dailyInt * days;
+      }
+      lastDate = ev.date;
+
+      if (ev.type === 'rate_change') {
+        currentRate = ev.new_rate;
+        // recalc ydelse if no explicit ydelse in renteperiode
+        if (ev.new_ydelse != null) {
+          currentYdelse = ev.new_ydelse;
+        } else {
+          currentYdelse = annuityRecalc(saldo + accrued, currentRate, ev.date, slutdato, ydelseFrek);
+        }
+        events.push({
+          date: Util.isoDate(ev.date), type: 'rate_change', saldo: Util.r2(saldo),
+          rente_pct: currentRate, ydelse: Util.r2(currentYdelse), accrued: Util.r2(accrued)
+        });
+      } else if (ev.type === 'capitalize') {
+        // Quarterly interest capitalization: add accrued to saldo, reset accrued.
+        const capAmount = accrued;
+        saldo += accrued;
+        accrued = 0;
+        events.push({
+          date: Util.isoDate(ev.date), type: 'capitalize', saldo: Util.r2(saldo),
+          rente_pct: currentRate, interest: Util.r2(capAmount)
+        });
+      } else if (ev.type === 'payment') {
+        // Pay currentYdelse: first deduct capitalized interest embedded in saldo growth,
+        // but since we capitalize quarterly, the ydelse goes against saldo directly.
+        let pay = currentYdelse;
+        if (pay > saldo) pay = saldo; // last payment
+        saldo -= pay;
+        events.push({
+          date: Util.isoDate(ev.date), type: 'payment', saldo: Util.r2(saldo),
+          rente_pct: currentRate, amount: Util.r2(pay), ydelse: Util.r2(currentYdelse)
+        });
+      } else if (ev.type === 'extra_payment') {
+        const amt = Math.min(ev.amount, saldo);
+        saldo -= amt;
+        events.push({
+          date: Util.isoDate(ev.date), type: 'extra_payment', saldo: Util.r2(saldo),
+          rente_pct: currentRate, amount: Util.r2(amt), note: ev.note || ''
+        });
+        // Per loan terms: maintain term, reduce ydelse
+        if (slutdato) {
+          currentYdelse = annuityRecalc(saldo + accrued, currentRate, ev.date, slutdato, ydelseFrek);
+        }
+      }
+    }
+
+    return {
+      events,
+      saldo: Util.r2(saldo),
+      accrued: Util.r2(accrued),
+      rente_pct: currentRate,
+      ydelse: Util.r2(currentYdelse),
+      last_capitalization: findLastCap(calendar, end),
+    };
+  }
+
+  /** Recalculate annuity payment to amortize balance by original slutdato.
+   *  frek = 'maanedlig' (default) or 'kvartal'. */
+  function annuityRecalc(balance, ratePct, fromDate, slutdato, frek) {
+    if (!slutdato) return 0;
+    frek = frek || 'maanedlig';
+    const months = monthsBetween(fromDate, slutdato);
+    if (months <= 0) return balance;
+    if (frek === 'kvartal') {
+      const quarters = Math.max(1, Math.round(months / 3));
+      const r = (ratePct / 100) / 4;
+      return annuityPmt(balance, r, quarters);
+    }
+    const r = (ratePct / 100) / 12;
+    return annuityPmt(balance, r, months);
+  }
+
+  function monthsBetween(a, b) {
+    const A = Util.parseDate(a), B = Util.parseDate(b);
+    if (!A || !B) return 0;
+    return (B.getFullYear() - A.getFullYear()) * 12 + (B.getMonth() - A.getMonth());
+  }
+
+  function findLastCap(calendar, upto) {
+    let last = null;
+    for (const ev of calendar) {
+      if (ev.type === 'capitalize' && ev.date <= upto) last = ev.date;
+    }
+    return last;
+  }
+
+  /** Build the chronological list of events between start and end. */
+  function buildCalendar(start, end, renter, extras, slutdato, ydelseFrek) {
+    const events = [];
+    ydelseFrek = ydelseFrek || 'maanedlig';
+
+    // Capitalizations: 31/3, 30/6, 30/9, 31/12 between start and end (always quarterly)
+    const years = [];
+    for (let y = start.getFullYear(); y <= end.getFullYear(); y++) years.push(y);
+    for (const y of years) {
+      for (const [mo, day] of [[2, 31],[5, 30],[8, 30],[11, 31]]) {
+        const d = new Date(y, mo, day, 12);
+        if (d >= start && d <= end) events.push({ date: d, type: 'capitalize' });
+      }
+    }
+
+    if (ydelseFrek === 'kvartal') {
+      // Quarterly ydelse: same dates as capitalization (31/3, 30/6, 30/9, 31/12)
+      for (const y of years) {
+        for (const [mo, day] of [[2, 31],[5, 30],[8, 30],[11, 31]]) {
+          const d = new Date(y, mo, day, 12);
+          if (d >= start && d <= end) events.push({ date: d, type: 'payment' });
+        }
+      }
+    } else {
+      // Monthly ydelse: last day of each month after udbetalingsdato
+      let cur = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 12);
+      let firstPayment = Util.endOfMonth(new Date(cur.getFullYear(), cur.getMonth(), 1, 12));
+      if (firstPayment <= cur) firstPayment = Util.endOfMonth(new Date(cur.getFullYear(), cur.getMonth() + 1, 1, 12));
+      let p = firstPayment;
+      while (p <= end) {
+        events.push({ date: p, type: 'payment' });
+        p = Util.endOfMonth(new Date(p.getFullYear(), p.getMonth() + 1, 15, 12));
+      }
+    }
+
+    // Rate changes: beginning of each renteperiode after start
+    const sortedRenter = renter.slice().sort((a, b) => (a.fra || '').localeCompare(b.fra || ''));
+    for (const r of sortedRenter) {
+      const fra = Util.parseDate(r.fra);
+      if (!fra || fra <= start || fra > end) continue;
+      events.push({
+        date: fra, type: 'rate_change',
+        new_rate: +r.rente_pct || 0,
+        new_ydelse: (r.ydelse != null && r.ydelse !== '') ? +r.ydelse : null,
+      });
+    }
+
+    // Extra payments (from extras array or deltager indfrielser)
+    for (const x of extras) {
+      const d = Util.parseDate(x.date);
+      if (!d || d < start || d > end) continue;
+      events.push({ date: d, type: 'extra_payment', amount: +x.amount || 0, note: x.note || '' });
+    }
+
+    // Sort chronologically; for same date: rate_change → capitalize → payment → extra
+    const priority = { rate_change: 1, capitalize: 2, payment: 3, extra_payment: 4 };
+    events.sort((a, b) => {
+      const dA = a.date - b.date;
+      if (dA !== 0) return dA;
+      return (priority[a.type] || 9) - (priority[b.type] || 9);
+    });
+
+    return events;
+  }
+
+  /**
+   * Compute per-participant balances at a specific date.
+   * Returns: { total_saldo, accrued, rente_pct, ydelse, pr_deltager: [{ deltager, andel_pct, andel_saldo, andel_accrued, indfri_bel }] }
+   */
+  function opgorelse(lan, renter, deltagere, date) {
+    // Include extra payments from deltagere.indfrielser
+    const extras = [];
+    for (const d of deltagere) {
+      if (d.indfrielser && Array.isArray(d.indfrielser)) {
+        for (const i of d.indfrielser) extras.push({ date: i.dato, amount: +i.beloeb || 0, note: `Indfrielse ${d.navn||d.lejl_nr}` });
+      }
+    }
+    const sim = simulate(lan, renter, deltagere, date, extras);
+
+    // Compute active fordelingstal at 'date'
+    const dateD = Util.parseDate(date);
+    const active = deltagere.filter(d => {
+      const ind = Util.parseDate(d.indtradt) || Util.parseDate(lan.udbetalingsdato);
+      const ud  = Util.parseDate(d.udtradt);
+      return (!ind || ind <= dateD) && (!ud || ud >= dateD);
+    });
+    const sumFordel = active.reduce((s, d) => s + (+d.fordelingstal || 0), 0);
+
+    const rows = deltagere.map(d => {
+      const ud = Util.parseDate(d.udtradt);
+      const ind = Util.parseDate(d.indtradt) || Util.parseDate(lan.udbetalingsdato);
+      const isActive = (!ind || ind <= dateD) && (!ud || ud >= dateD);
+      const share = isActive && sumFordel > 0 ? (+d.fordelingstal / sumFordel) : 0;
+      const andelSaldo   = isActive ? Util.r2(sim.saldo * share) : 0;
+      const andelAccrued = isActive ? Util.r2(sim.accrued * share) : 0;
+      return {
+        deltager: d,
+        isActive,
+        andel_pct: Util.r2(share * 100),
+        andel_saldo: andelSaldo,
+        andel_accrued: andelAccrued,
+        indfri_bel: Util.r2(andelSaldo + andelAccrued),
+      };
+    });
+
+    return {
+      date,
+      total_saldo: sim.saldo,
+      accrued: sim.accrued,
+      rente_pct: sim.rente_pct,
+      ydelse: sim.ydelse,
+      last_capitalization: sim.last_capitalization ? Util.isoDate(sim.last_capitalization) : null,
+      sum_fordel: sumFordel,
+      pr_deltager: rows,
+      events: sim.events,
+    };
+  }
+
+  /**
+   * Periodeopgørelse from 'fra' to 'til':
+   * For each participant (active at any point in period), return:
+   *   primo_saldo_andel, afdrag_andel, renter_andel, ultimo_saldo_andel
+   * Handles udtraden: pro-rata based on days active in the period.
+   */
+  function periodeOpgorelse(lan, renter, deltagere, fra, til) {
+    const oPrimo = opgorelse(lan, renter, deltagere, fra);
+    const oUltimo = opgorelse(lan, renter, deltagere, til);
+
+    // Totals for the period
+    const extras = [];
+    for (const d of deltagere) {
+      if (d.indfrielser && Array.isArray(d.indfrielser)) {
+        for (const i of d.indfrielser) extras.push({ date: i.dato, amount: +i.beloeb || 0, note: `Indfrielse ${d.navn||d.lejl_nr}` });
+      }
+    }
+    const simTil = simulate(lan, renter, deltagere, til, extras);
+
+    // Sum interest capitalized in period and payments in period
+    let renterInPeriode = 0, afdragInPeriode = 0;
+    const fraD = Util.parseDate(fra), tilD = Util.parseDate(til);
+    for (const ev of simTil.events) {
+      const evD = Util.parseDate(ev.date);
+      if (evD < fraD || evD > tilD) continue;
+      if (ev.type === 'capitalize') renterInPeriode += (ev.interest || 0);
+      if (ev.type === 'payment' || ev.type === 'extra_payment') afdragInPeriode += (ev.amount || 0);
+    }
+
+    // Per participant: pro-rata by days active in period × fordelingstal
+    const rows = deltagere.map(d => {
+      const ind = Util.parseDate(d.indtradt) || Util.parseDate(lan.udbetalingsdato);
+      const ud  = Util.parseDate(d.udtradt);
+      const activeFrom = (ind && ind > fraD) ? ind : fraD;
+      const activeTo   = (ud && ud < tilD)   ? ud  : tilD;
+      const daysInPeriod = Math.max(0, Util.daysBetween(activeFrom, activeTo) + 1);
+      const totalDays = Util.daysBetween(fraD, tilD) + 1;
+      const timeShare = totalDays > 0 ? daysInPeriod / totalDays : 0;
+      const fordel = +d.fordelingstal || 0;
+      // Approximate average sum_fordel (use ultimo)
+      const sumFordel = oUltimo.sum_fordel || 1;
+      const ratio = (fordel / sumFordel) * timeShare;
+
+      const primoRow = oPrimo.pr_deltager.find(r => r.deltager.id === d.id);
+      const ultimoRow = oUltimo.pr_deltager.find(r => r.deltager.id === d.id);
+
+      return {
+        deltager: d,
+        primo_saldo: primoRow ? primoRow.andel_saldo : 0,
+        ultimo_saldo: ultimoRow ? ultimoRow.andel_saldo : 0,
+        afdrag_andel: Util.r2(afdragInPeriode * ratio),
+        renter_andel: Util.r2(renterInPeriode * ratio),
+        active_days: daysInPeriod,
+        udtradt_i_perioden: !!(ud && ud >= fraD && ud <= tilD),
+      };
+    });
+
+    return {
+      fra, til,
+      total_primo: oPrimo.total_saldo,
+      total_ultimo: oUltimo.total_saldo,
+      total_renter: Util.r2(renterInPeriode),
+      total_afdrag: Util.r2(afdragInPeriode),
+      pr_deltager: rows,
+    };
+  }
+
+  /** Expected events for bookings match (payments + capitalizations) in a period. */
+  function expectedEvents(lan, renter, deltagere, fra, til) {
+    const extras = [];
+    for (const d of deltagere) {
+      if (d.indfrielser && Array.isArray(d.indfrielser)) {
+        for (const i of d.indfrielser) extras.push({ date: i.dato, amount: +i.beloeb || 0, note: `Indfrielse ${d.navn||d.lejl_nr}` });
+      }
+    }
+    const sim = simulate(lan, renter, deltagere, til, extras);
+    const fraD = Util.parseDate(fra);
+    const tilD = Util.parseDate(til);
+    return sim.events.filter(ev => {
+      if (ev.type !== 'payment' && ev.type !== 'capitalize') return false;
+      const d = Util.parseDate(ev.date);
+      return d >= fraD && d <= tilD;
+    });
+  }
+
+  return {
+    rateOn, ydelseOn, simulate, opgorelse, periodeOpgorelse, expectedEvents,
+    annuityPmt, annuityRecalc
+  };
+})();
+
+/* ═══ XLSX import/export ══════════════════════════════════ */
+const Xlsx = (function() {
+
+  const SHEETS = [
+    {
+      name: 'Ejendomme', key: 'ejendomme',
+      cols: ['id','navn','adresse','postnr','by','cvr','note']
+    },
+    {
+      name: 'Lån', key: 'lan',
+      cols: ['id','ejendom_id','navn','lanetype','kreditor','konto','reference','hovedstol','stiftelsesomk','udbetalingsdato','slutdato','oprindelig_lobetid_md','ydelse_frekvens','rentetilskriv_frekvens','note']
+    },
+    {
+      name: 'Renteperioder', key: 'renteperioder',
+      cols: ['id','lan_id','fra','til','rente_pct','ydelse','note']
+    },
+    {
+      name: 'Deltagere', key: 'deltagere',
+      cols: ['id','lan_id','lejl_nr','navn','adresse','fordelingstal','indtradt','udtradt','indfrielser_json','note']
+    },
+    {
+      name: 'Bogføring', key: 'bogforing',
+      cols: ['id','lan_id','dato','type','beloeb','tekst','bilag','konto','match_status']
+    },
+  ];
+
+  function exportAll() {
+    const d = Data.get();
+    const wb = XLSX.utils.book_new();
+
+    // Info sheet
+    const info = [
+      ['Blomfelt Fælleslån – eksport'],
+      ['Dato', new Date().toISOString()],
+      ['Version', d.version || 1],
+      [],
+      ['Ark', 'Rækker'],
+    ];
+    SHEETS.forEach(s => info.push([s.name, (d[s.key] || []).length]));
+    const infoSheet = XLSX.utils.aoa_to_sheet(info);
+    XLSX.utils.book_append_sheet(wb, infoSheet, 'Info');
+
+    // Data sheets
+    for (const s of SHEETS) {
+      const rows = (d[s.key] || []).map(r => {
+        const out = {};
+        for (const c of s.cols) {
+          if (c === 'indfrielser_json') out[c] = r.indfrielser ? JSON.stringify(r.indfrielser) : '';
+          else out[c] = r[c] == null ? '' : r[c];
+        }
+        return out;
+      });
+      const sheet = XLSX.utils.json_to_sheet(rows, { header: s.cols });
+      XLSX.utils.book_append_sheet(wb, sheet, s.name);
+    }
+
+    const fname = `blomfelt-faelleslaan-${new Date().toISOString().slice(0,10)}.xlsx`;
+    XLSX.writeFile(wb, fname);
+  }
+
+  /** Read xlsx file → structured data. */
+  function readWorkbook(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
+          resolve(wb);
+        } catch (err) { reject(err); }
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  async function importAll(file, mode = 'replace') {
+    const wb = await readWorkbook(file);
+    const imported = { ejendomme: [], lan: [], renteperioder: [], deltagere: [], bogforing: [] };
+
+    for (const s of SHEETS) {
+      if (!wb.Sheets[s.name]) continue;
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[s.name], { raw: false, defval: '' });
+      for (const r of rows) {
+        const rec = { id: r.id || Util.uid() };
+        for (const c of s.cols) {
+          if (c === 'indfrielser_json') {
+            if (r.indfrielser_json) {
+              try { rec.indfrielser = JSON.parse(r.indfrielser_json); } catch { rec.indfrielser = []; }
+            }
+          } else if (['hovedstol','stiftelsesomk','rente_pct','ydelse','fordelingstal','beloeb','oprindelig_lobetid_md'].includes(c)) {
+            rec[c] = r[c] === '' || r[c] == null ? null : parseNum(r[c]);
+          } else if (['udbetalingsdato','slutdato','fra','til','indtradt','udtradt','dato'].includes(c)) {
+            rec[c] = normalizeDate(r[c]);
+          } else {
+            rec[c] = r[c];
+          }
+        }
+        imported[s.key].push(rec);
+      }
+    }
+
+    if (mode === 'replace') {
+      const d = Data.get();
+      d.ejendomme = imported.ejendomme;
+      d.lan = imported.lan;
+      d.renteperioder = imported.renteperioder;
+      d.deltagere = imported.deltagere;
+      d.bogforing = imported.bogforing;
+      Data.save();
+    } else {
+      // merge on id
+      const d = Data.get();
+      for (const s of SHEETS) {
+        const existing = d[s.key];
+        const map = new Map(existing.map(x => [x.id, x]));
+        for (const row of imported[s.key]) {
+          if (map.has(row.id)) Object.assign(map.get(row.id), row);
+          else existing.push(row);
+        }
+      }
+      Data.save();
+    }
+
+    return {
+      ejendomme: imported.ejendomme.length,
+      lan: imported.lan.length,
+      renteperioder: imported.renteperioder.length,
+      deltagere: imported.deltagere.length,
+      bogforing: imported.bogforing.length,
+    };
+  }
+
+  function parseNum(v) {
+    if (v == null || v === '') return null;
+    if (typeof v === 'number') return v;
+    let s = String(v).trim().replace(/\s/g, '');
+    // Danish convention: . thousands, , decimal
+    if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.');
+    else if (s.includes(',')) s = s.replace(',', '.');
+    const n = parseFloat(s);
+    return isNaN(n) ? null : n;
+  }
+
+  function normalizeDate(v) {
+    if (!v) return '';
+    if (v instanceof Date) return Util.isoDate(v);
+    const d = Util.parseDate(v);
+    return d ? Util.isoDate(d) : String(v);
+  }
+
+  /** Export an arbitrary aoa (array-of-arrays) table to a new xlsx. */
+  function exportAoa(rows, filename, sheetName = 'Opgørelse') {
+    const wb = XLSX.utils.book_new();
+    const sh = XLSX.utils.aoa_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wb, sh, sheetName);
+    XLSX.writeFile(wb, filename);
+  }
+
+  /** Parse bookkeeping file into {dato, tekst, beloeb, konto} rows. */
+  async function readBogforingFile(file) {
+    const wb = await readWorkbook(file);
+    const first = wb.SheetNames[0];
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[first], { raw: false, defval: '' });
+    const norm = (s) => String(s || '').toLowerCase().trim();
+    return rows.map(r => {
+      const keys = Object.keys(r);
+      const findKey = (names) => keys.find(k => names.some(n => norm(k).includes(n)));
+      const dato = r[findKey(['dato','date'])];
+      const tekst = r[findKey(['tekst','text','beskrivelse','bilagstekst'])] || '';
+      const beloeb = r[findKey(['beløb','belob','amount','beloeb'])];
+      const konto = r[findKey(['konto','account'])] || '';
+      const bilag = r[findKey(['bilag','voucher','reference'])] || '';
+      return { dato: normalizeDate(dato), tekst, beloeb: parseNum(beloeb), konto, bilag };
+    }).filter(r => r.dato && r.beloeb != null);
+  }
+
+  return { exportAll, importAll, readWorkbook, exportAoa, readBogforingFile };
+})();
+
+/* ═══ UI (rendering + events) ═══════════════════════════════ */
+const UI = (function() {
+  const pages = ['opsaetning','indfrielse','opgorelse','bogforing','data'];
+  const pageLabels = {
+    opsaetning: 'Opsætning',
+    indfrielse: 'Indfrielse',
+    opgorelse:  'Opgørelse',
+    bogforing:  'Bogføring',
+    data:       'Data',
+  };
+
+  function init() {
+    renderNav();
+    show('opsaetning');
+    renderOpsaetning();
+    renderLanSelectors();
+    renderDataInfo();
+    bindGlobal();
+  }
+
+  function renderNav() {
+    const nav = document.getElementById('nav');
+    nav.innerHTML = pages.map(p =>
+      `<button data-page="${p}" class="${p==='opsaetning'?'on':''}">${pageLabels[p]}</button>`
+    ).join('');
+    nav.querySelectorAll('button').forEach(b => {
+      b.addEventListener('click', () => {
+        nav.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+        b.classList.add('on');
+        show(b.dataset.page);
+      });
+    });
+  }
+
+  function show(page) {
+    pages.forEach(p => {
+      const el = document.getElementById('page-' + p);
+      if (el) el.classList.toggle('on', p === page);
+    });
+    if (page === 'indfrielse') { renderLanSelectors(); setTimeout(updateIndfrielseDeltagere, 50); }
+    if (page === 'opgorelse') renderLanSelectors();
+    if (page === 'bogforing') renderLanSelectors();
+    if (page === 'data') renderDataInfo();
+  }
+
+  function bindGlobal() {
+    document.getElementById('btn-new-ejendom').addEventListener('click', () => editEjendom(null));
+    document.getElementById('btn-export').addEventListener('click', () => { try { Xlsx.exportAll(); } catch(e){ alert('Eksport fejlede: '+e.message); } });
+    document.getElementById('btn-import').addEventListener('click', () => document.getElementById('file-import').click());
+    document.getElementById('file-import').addEventListener('change', async (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      if (!confirm('Importér fra fil og ERSTAT alle nuværende data?')) { e.target.value=''; return; }
+      try {
+        const r = await Xlsx.importAll(f, 'replace');
+        alert(`Importeret: ${r.ejendomme} ejendomme, ${r.lan} lån, ${r.renteperioder} renteperioder, ${r.deltagere} deltagere, ${r.bogforing} bogføringsposter.`);
+        renderOpsaetning(); renderLanSelectors(); renderDataInfo();
+      } catch (err) { alert('Import fejlede: ' + err.message); }
+      e.target.value = '';
+    });
+
+    // Indfrielse
+    document.getElementById('i-lan').addEventListener('change', updateIndfrielseDeltagere);
+    document.getElementById('i-dato').addEventListener('change', updateIndfrielseDeltagere);
+    document.getElementById('i-sel-all').addEventListener('click', () => {
+      document.querySelectorAll('#i-deltager-list input[type=checkbox]').forEach(cb => { cb.checked = true; });
+      computeIndfrielse();
+    });
+    document.getElementById('i-sel-none').addEventListener('click', () => {
+      document.querySelectorAll('#i-deltager-list input[type=checkbox]').forEach(cb => { cb.checked = false; });
+      computeIndfrielse();
+    });
+    document.getElementById('i-gebyr').addEventListener('change', computeIndfrielse);
+
+    // Opgørelse
+    document.getElementById('o-beregn').addEventListener('click', computeOpgorelse);
+    document.getElementById('o-export-xlsx').addEventListener('click', exportOpgorelseXlsx);
+
+    // Bogføring
+    document.getElementById('b-import').addEventListener('click', importBogforing);
+
+    // Data page
+    document.getElementById('d-export').addEventListener('click', () => Xlsx.exportAll());
+    document.getElementById('d-import').addEventListener('click', async () => {
+      const f = document.getElementById('d-file').files[0]; if (!f) { alert('Vælg en fil først.'); return; }
+      const mode = document.getElementById('d-mode').value;
+      if (mode === 'replace' && !confirm('Dette ERSTATTER alle data. Er du sikker?')) return;
+      try {
+        const r = await Xlsx.importAll(f, mode);
+        alert(`Importeret: ${r.ejendomme} ejendomme, ${r.lan} lån, ${r.renteperioder} renteperioder, ${r.deltagere} deltagere, ${r.bogforing} bogføringsposter.`);
+        renderOpsaetning(); renderLanSelectors(); renderDataInfo();
+      } catch (err) { alert('Import fejlede: ' + err.message); }
+    });
+    document.getElementById('d-clear').addEventListener('click', () => {
+      if (!confirm('Sletter alle data permanent fra denne browser. Fortsæt?')) return;
+      if (!confirm('Sidste chance — dette kan IKKE fortrydes. Fortsæt?')) return;
+      Storage.clear();
+      Data.replaceAll(Storage.initial());
+      renderOpsaetning(); renderLanSelectors(); renderDataInfo();
+    });
+    document.getElementById('d-demo').addEventListener('click', () => {
+      if (!confirm('Indlæser demo-data (EF Katrinedalsvej 46). Erstatter eksisterende data — fortsæt?')) return;
+      loadDemoData();
+      renderOpsaetning(); renderLanSelectors(); renderDataInfo();
+      alert('Demo-data indlæst. Gå til Opsætning for at se de tre lån, eller Indfrielse/Opgørelse for at teste beregningerne.');
+    });
+
+    // Modal background click → close
+    document.getElementById('modal-bg').addEventListener('click', (e) => {
+      if (e.target.id === 'modal-bg') closeModal();
+    });
+  }
+
+  /* ─── OPSÆTNING: tree view ──────────────────────────── */
+  function renderOpsaetning() {
+    const root = document.getElementById('tree-ejendomme');
+    const d = Data.get();
+    if (d.ejendomme.length === 0) {
+      root.innerHTML = `
+        <div class="card empty-state">
+          <h3>Ingen ejendomme endnu</h3>
+          <p>Klik <strong>"+ Ny ejendom"</strong> oppe til højre for at komme i gang — eller importér et Excel-ark under fanen <strong>Data</strong>.</p>
+        </div>`;
+      return;
+    }
+    root.innerHTML = d.ejendomme.map(e => renderEjendomNode(e)).join('');
+    root.querySelectorAll('[data-toggle]').forEach(t => {
+      t.addEventListener('click', (ev) => {
+        if (ev.target.closest('.tree-head-actions')) return;
+        const n = t.closest('.tree-node');
+        n.classList.toggle('open');
+      });
+    });
+    root.querySelectorAll('[data-action]').forEach(b => {
+      b.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const a = b.dataset.action;
+        const id = b.dataset.id;
+        const parent = b.dataset.parent;
+        handleAction(a, id, parent);
+      });
+    });
+  }
+
+  function renderEjendomNode(e) {
+    const lan = Data.lanForEjendom(e.id);
+    return `
+      <div class="tree-node">
+        <div class="tree-head" data-toggle>
+          <div>
+            <span class="caret">▸</span>
+            <span class="tree-label">${Util.escHtml(e.navn || 'Ejendom')}</span>
+            <span class="tree-meta">· ${Util.escHtml([e.adresse, e.postnr && (e.postnr + ' ' + (e.by||'')).trim()].filter(Boolean).join(', '))}</span>
+          </div>
+          <div class="tree-head-actions">
+            <button class="btn btn-ghost btn-sm" data-action="new-lan" data-id="${e.id}">+ Nyt lån</button>
+            <button class="btn btn-ghost btn-sm" data-action="edit-ejendom" data-id="${e.id}">✏️</button>
+            <button class="btn btn-ghost btn-sm" data-action="delete-ejendom" data-id="${e.id}">🗑️</button>
+          </div>
+        </div>
+        <div class="tree-body">
+          ${lan.length === 0
+            ? '<p class="muted">Ingen lån tilføjet endnu.</p>'
+            : lan.map(l => renderLanNode(l)).join('')}
+        </div>
+      </div>`;
+  }
+
+  function renderLanNode(l) {
+    const renter = Data.renterForLan(l.id);
+    const deltagere = Data.deltagereForLan(l.id);
+    const sumFordel = deltagere.filter(d => !d.udtradt).reduce((s,d)=>s+(+d.fordelingstal||0),0);
+    return `
+      <div class="tree-node" style="margin-left:1rem; margin-top:.5rem;">
+        <div class="tree-head" data-toggle style="background:#fff;">
+          <div>
+            <span class="caret">▸</span>
+            <span class="tree-label">${Util.escHtml(l.navn || 'Lån')}</span>
+            <span class="tree-meta">· ${Util.fmtKr(+l.hovedstol)} DKK · ${Util.escHtml(l.kreditor||'')} · ${deltagere.length} deltagere (fordelingstal ${Util.fmtNum(sumFordel,2)})</span>
+          </div>
+          <div class="tree-head-actions">
+            <button class="btn btn-ghost btn-sm" data-action="edit-lan" data-id="${l.id}">✏️</button>
+            <button class="btn btn-ghost btn-sm" data-action="delete-lan" data-id="${l.id}">🗑️</button>
+          </div>
+        </div>
+        <div class="tree-body">
+          <div class="row row-2">
+            <div>
+              <div style="font-weight:600; margin-bottom:.4rem; display:flex; justify-content:space-between; align-items:center;">
+                Renteperioder
+                <button class="btn btn-ghost btn-sm" data-action="new-rente" data-parent="${l.id}">+ Ny</button>
+              </div>
+              ${renter.length === 0 ? '<p class="muted" style="font-size:.8rem">Ingen endnu.</p>' :
+                `<div class="table-wrap"><table class="table">
+                  <thead><tr><th>Fra</th><th>Til</th><th class="num">Rente %</th><th class="num">Ydelse</th><th></th></tr></thead>
+                  <tbody>${renter.map(r => `<tr>
+                    <td>${Util.fmtDate(r.fra)}</td>
+                    <td>${r.til ? Util.fmtDate(r.til) : '<span class="muted">…</span>'}</td>
+                    <td class="num">${Util.fmtPct(+r.rente_pct)}</td>
+                    <td class="num">${r.ydelse ? Util.fmtKr(+r.ydelse) : ''}</td>
+                    <td class="actions">
+                      <button class="btn btn-ghost btn-sm" data-action="edit-rente" data-id="${r.id}">✏️</button>
+                      <button class="btn btn-ghost btn-sm" data-action="delete-rente" data-id="${r.id}">🗑️</button>
+                    </td>
+                  </tr>`).join('')}</tbody></table></div>`}
+            </div>
+            <div>
+              <div style="font-weight:600; margin-bottom:.4rem; display:flex; justify-content:space-between; align-items:center;">
+                Deltagere
+                <button class="btn btn-ghost btn-sm" data-action="new-deltager" data-parent="${l.id}">+ Ny</button>
+              </div>
+              ${deltagere.length === 0 ? '<p class="muted" style="font-size:.8rem">Ingen endnu.</p>' :
+                `<div class="table-wrap"><table class="table">
+                  <thead><tr><th>Lejl</th><th>Navn</th><th class="num">Fordel</th><th>Status</th><th></th></tr></thead>
+                  <tbody>${deltagere.map(d => `<tr>
+                    <td>${Util.escHtml(d.lejl_nr||'')}</td>
+                    <td>${Util.escHtml(d.navn||'')}</td>
+                    <td class="num">${Util.fmtNum(+d.fordelingstal||0, 2)}</td>
+                    <td>${d.udtradt ? `<span class="badge badge-muted">Udtrådt ${Util.fmtDate(d.udtradt)}</span>` : '<span class="badge badge-green">Aktiv</span>'}</td>
+                    <td class="actions">
+                      <button class="btn btn-ghost btn-sm" data-action="edit-deltager" data-id="${d.id}">✏️</button>
+                      <button class="btn btn-ghost btn-sm" data-action="delete-deltager" data-id="${d.id}">🗑️</button>
+                    </td>
+                  </tr>`).join('')}</tbody></table></div>`}
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function handleAction(a, id, parent) {
+    switch (a) {
+      case 'edit-ejendom':   editEjendom(id); break;
+      case 'delete-ejendom': if (confirm('Slet ejendommen og ALT dens indhold (lån, deltagere, renter)?')) { Data.deleteEjendom(id); renderOpsaetning(); renderLanSelectors(); } break;
+      case 'new-lan':        editLan(null, id); break;
+      case 'edit-lan':       editLan(id); break;
+      case 'delete-lan':     if (confirm('Slet lån og alt tilknyttet?')) { Data.deleteLan(id); renderOpsaetning(); renderLanSelectors(); } break;
+      case 'new-rente':      editRente(null, parent); break;
+      case 'edit-rente':     editRente(id); break;
+      case 'delete-rente':   if (confirm('Slet renteperiode?')) { Data.deleteRenteperiode(id); renderOpsaetning(); } break;
+      case 'new-deltager':   editDeltager(null, parent); break;
+      case 'edit-deltager':  editDeltager(id); break;
+      case 'delete-deltager':if (confirm('Slet deltager?')) { Data.deleteDeltager(id); renderOpsaetning(); } break;
+    }
+  }
+
+  /* ─── Modals ─── */
+  function openModal(title, body, footer, wide = false) {
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-body').innerHTML = body;
+    document.getElementById('modal-foot').innerHTML = footer;
+    document.getElementById('modal').classList.toggle('modal-wide', wide);
+    document.getElementById('modal-bg').classList.add('on');
+  }
+  function closeModal() {
+    document.getElementById('modal-bg').classList.remove('on');
+  }
+
+  function editEjendom(id) {
+    const e = id ? Data.get().ejendomme.find(x => x.id === id) : {};
+    const title = id ? 'Redigér ejendom' : 'Ny ejendom';
+    const body = `
+      <div class="field"><label>Navn *</label><input class="input" id="ej-navn" value="${Util.escHtml(e.navn||'')}"></div>
+      <div class="row row-2">
+        <div class="field"><label>Adresse</label><input class="input" id="ej-adresse" value="${Util.escHtml(e.adresse||'')}"></div>
+        <div class="row row-2" style="gap:.6rem">
+          <div class="field"><label>Postnr</label><input class="input" id="ej-postnr" value="${Util.escHtml(e.postnr||'')}"></div>
+          <div class="field"><label>By</label><input class="input" id="ej-by" value="${Util.escHtml(e.by||'')}"></div>
+        </div>
+      </div>
+      <div class="field"><label>CVR / SE-nr.</label><input class="input" id="ej-cvr" value="${Util.escHtml(e.cvr||'')}"></div>
+      <div class="field"><label>Note</label><textarea class="textarea" id="ej-note">${Util.escHtml(e.note||'')}</textarea></div>
+    `;
+    const foot = `
+      <button class="btn btn-ghost" onclick="UI.closeModal()">Annullér</button>
+      <button class="btn btn-primary" id="ej-save">Gem</button>
+    `;
+    openModal(title, body, foot);
+    document.getElementById('ej-save').addEventListener('click', () => {
+      const obj = {
+        id: e.id,
+        navn: document.getElementById('ej-navn').value.trim(),
+        adresse: document.getElementById('ej-adresse').value.trim(),
+        postnr: document.getElementById('ej-postnr').value.trim(),
+        by: document.getElementById('ej-by').value.trim(),
+        cvr: document.getElementById('ej-cvr').value.trim(),
+        note: document.getElementById('ej-note').value.trim(),
+      };
+      if (!obj.navn) { alert('Navn er påkrævet'); return; }
+      if (id) Data.updateEjendom(id, obj); else Data.addEjendom(obj);
+      closeModal(); renderOpsaetning(); renderLanSelectors();
+    });
+  }
+
+  function editLan(id, ejendom_id) {
+    const l = id ? Data.get().lan.find(x => x.id === id) : { ejendom_id, ydelse_frekvens:'maanedlig', rentetilskriv_frekvens:'kvartal' };
+    const title = id ? 'Redigér lån' : 'Nyt lån';
+    const body = `
+      <div class="field"><label>Navn (intern betegnelse) *</label><input class="input" id="l-navn" value="${Util.escHtml(l.navn||'')}" placeholder="fx 'Fælleslån 2 / Danske Bank'"></div>
+      <div class="row row-2">
+        <div class="field"><label>Lånetype</label>
+          <select class="select" id="l-type">
+            <option value="faelleslaan" ${l.lanetype==='faelleslaan'?'selected':''}>Fælleslån (Danske Lån)</option>
+            <option value="erhvervslaan" ${l.lanetype==='erhvervslaan'?'selected':''}>Erhvervslån</option>
+            <option value="byggelaan" ${l.lanetype==='byggelaan'?'selected':''}>Byggelån</option>
+            <option value="realkredit" ${l.lanetype==='realkredit'?'selected':''}>Realkredit</option>
+            <option value="andet" ${l.lanetype==='andet'?'selected':''}>Andet</option>
+          </select>
+        </div>
+        <div class="field"><label>Kreditor</label><input class="input" id="l-kreditor" value="${Util.escHtml(l.kreditor||'')}"></div>
+      </div>
+      <div class="row row-2">
+        <div class="field"><label>Kontonummer</label><input class="input" id="l-konto" value="${Util.escHtml(l.konto||'')}"></div>
+        <div class="field"><label>Reference</label><input class="input" id="l-ref" value="${Util.escHtml(l.reference||'')}"></div>
+      </div>
+      <div class="row row-2">
+        <div class="field"><label>Hovedstol (DKK) *</label><input class="input input-num" type="number" step="0.01" id="l-hoved" value="${l.hovedstol||''}"></div>
+        <div class="field"><label>Stiftelsesomkostninger</label><input class="input input-num" type="number" step="0.01" id="l-stift" value="${l.stiftelsesomk||0}"></div>
+      </div>
+      <div class="row row-2">
+        <div class="field"><label>Udbetalingsdato *</label><input class="input" type="date" id="l-udb" value="${l.udbetalingsdato||''}"></div>
+        <div class="field"><label>Oprindelig slutdato *</label><input class="input" type="date" id="l-slut" value="${l.slutdato||''}"></div>
+      </div>
+      <div class="row row-2">
+        <div class="field"><label>Ydelsesfrekvens</label>
+          <select class="select" id="l-yf">
+            <option value="maanedlig" ${l.ydelse_frekvens==='maanedlig'?'selected':''}>Månedlig</option>
+            <option value="kvartal" ${l.ydelse_frekvens==='kvartal'?'selected':''}>Kvartalsvis</option>
+          </select>
+        </div>
+        <div class="field"><label>Rentetilskrivning</label>
+          <select class="select" id="l-rtf">
+            <option value="kvartal" ${l.rentetilskriv_frekvens==='kvartal'?'selected':''}>Kvartalsvis</option>
+            <option value="aarlig" ${l.rentetilskriv_frekvens==='aarlig'?'selected':''}>Årlig</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Note</label><textarea class="textarea" id="l-note">${Util.escHtml(l.note||'')}</textarea></div>
+    `;
+    const foot = `
+      <button class="btn btn-ghost" onclick="UI.closeModal()">Annullér</button>
+      <button class="btn btn-primary" id="l-save">Gem</button>
+    `;
+    openModal(title, body, foot, true);
+    document.getElementById('l-save').addEventListener('click', () => {
+      const obj = {
+        id: l.id,
+        ejendom_id: l.ejendom_id || ejendom_id,
+        navn: document.getElementById('l-navn').value.trim(),
+        lanetype: document.getElementById('l-type').value,
+        kreditor: document.getElementById('l-kreditor').value.trim(),
+        konto: document.getElementById('l-konto').value.trim(),
+        reference: document.getElementById('l-ref').value.trim(),
+        hovedstol: parseFloat(document.getElementById('l-hoved').value) || 0,
+        stiftelsesomk: parseFloat(document.getElementById('l-stift').value) || 0,
+        udbetalingsdato: document.getElementById('l-udb').value,
+        slutdato: document.getElementById('l-slut').value,
+        ydelse_frekvens: document.getElementById('l-yf').value,
+        rentetilskriv_frekvens: document.getElementById('l-rtf').value,
+        note: document.getElementById('l-note').value.trim(),
+      };
+      if (!obj.navn) { alert('Navn er påkrævet'); return; }
+      if (!obj.udbetalingsdato) { alert('Udbetalingsdato er påkrævet'); return; }
+      if (!obj.hovedstol) { alert('Hovedstol er påkrævet'); return; }
+      if (id) Data.updateLan(id, obj); else Data.addLan(obj);
+      closeModal(); renderOpsaetning(); renderLanSelectors();
+    });
+  }
+
+  function editRente(id, lan_id) {
+    const r = id ? Data.get().renteperioder.find(x => x.id === id) : { lan_id };
+    const title = id ? 'Redigér renteperiode' : 'Ny renteperiode';
+    const body = `
+      <div class="alert alert-info"><strong>Tip:</strong> Opret én periode pr. renteændring. Første periode starter på lånets udbetalingsdato. Lad "Til" stå tom for den aktuelle (sidste) periode. Angiv <strong>Ydelse</strong> hvis banken har meddelt en specifik ydelse — ellers beregnes den automatisk.</div>
+      <div class="row row-2">
+        <div class="field"><label>Fra (første dag) *</label><input class="input" type="date" id="r-fra" value="${r.fra||''}"></div>
+        <div class="field"><label>Til (sidste dag) <small>— tom = nuværende</small></label><input class="input" type="date" id="r-til" value="${r.til||''}"></div>
+      </div>
+      <div class="row row-2">
+        <div class="field"><label>Rente (% p.a.) *</label><input class="input input-num" type="number" step="0.0001" id="r-rente" value="${r.rente_pct||''}"></div>
+        <div class="field"><label>Ydelse <small>— valgfri, fra bank</small></label><input class="input input-num" type="number" step="0.01" id="r-ydelse" value="${r.ydelse||''}"></div>
+      </div>
+      <div class="field"><label>Note</label><textarea class="textarea" id="r-note">${Util.escHtml(r.note||'')}</textarea></div>
+    `;
+    const foot = `
+      <button class="btn btn-ghost" onclick="UI.closeModal()">Annullér</button>
+      <button class="btn btn-primary" id="r-save">Gem</button>
+    `;
+    openModal(title, body, foot);
+
+    // Live cross-check: when both rente og ydelse er indtastet, vis beregnet ydelse
+    const runCrossCheck = () => {
+      const rentePct = parseFloat(document.getElementById('r-rente').value) || 0;
+      const ydelseVal = document.getElementById('r-ydelse').value ? parseFloat(document.getElementById('r-ydelse').value) : null;
+      const fra = document.getElementById('r-fra').value;
+      const lanId = r.lan_id || lan_id;
+      const lan = Data.lanById(lanId);
+      let msgEl = document.getElementById('r-crosscheck');
+      if (!msgEl) {
+        msgEl = document.createElement('div');
+        msgEl.id = 'r-crosscheck';
+        msgEl.style.fontSize = '.82rem';
+        msgEl.style.marginTop = '.4rem';
+        document.getElementById('r-ydelse').parentElement.appendChild(msgEl);
+      }
+      msgEl.innerHTML = '';
+      if (!lan || !rentePct || !fra) return;
+      // Find saldo at 'fra' ved at simulere frem til fra-1
+      const renterAll = Data.renterForLan(lanId).filter(x => x.id !== r.id);
+      const deltAll = Data.deltagereForLan(lanId);
+      let balAtFra = +lan.hovedstol || 0;
+      try {
+        const dayBefore = new Date(Util.parseDate(fra).getTime() - 86400000);
+        const sim = Calc.simulate(lan, renterAll, deltAll, Util.isoDate(dayBefore), []);
+        balAtFra = sim.saldo + sim.accrued;
+      } catch (_) {}
+      const frek = lan.ydelse_frekvens || 'maanedlig';
+      const calcYdelse = Calc.annuityRecalc(balAtFra, rentePct, fra, lan.slutdato, frek);
+      if (ydelseVal == null || isNaN(ydelseVal)) {
+        msgEl.innerHTML = `<span class="muted">Beregnet ydelse ved ${Util.fmtPct(rentePct)}: <strong>${Util.fmtKr(calcYdelse)} DKK</strong> (${frek}). Indtast kun ydelse, hvis banken har meddelt en specifik værdi.</span>`;
+        return;
+      }
+      const diff = Math.abs(ydelseVal - calcYdelse);
+      const pctDiff = calcYdelse > 0 ? (diff / calcYdelse) * 100 : 0;
+      if (pctDiff > 1) {
+        msgEl.innerHTML = `<span style="color:var(--danger);">⚠ Afvigelse: beregnet ydelse er <strong>${Util.fmtKr(calcYdelse)} DKK</strong>, indtastet er <strong>${Util.fmtKr(ydelseVal)} DKK</strong> (afvigelse ${Util.fmtKr(diff)} / ${pctDiff.toFixed(2)}%). Tjek renten eller ydelsen.</span>`;
+      } else {
+        msgEl.innerHTML = `<span style="color:var(--success);">✓ Ydelse og rente stemmer (beregnet ${Util.fmtKr(calcYdelse)} vs. indtastet ${Util.fmtKr(ydelseVal)}).</span>`;
+      }
+    };
+    for (const fld of ['r-rente','r-ydelse','r-fra']) {
+      document.getElementById(fld).addEventListener('input', runCrossCheck);
+    }
+    runCrossCheck();
+
+    document.getElementById('r-save').addEventListener('click', () => {
+      const obj = {
+        id: r.id,
+        lan_id: r.lan_id || lan_id,
+        fra: document.getElementById('r-fra').value,
+        til: document.getElementById('r-til').value || null,
+        rente_pct: parseFloat(document.getElementById('r-rente').value) || 0,
+        ydelse: document.getElementById('r-ydelse').value ? parseFloat(document.getElementById('r-ydelse').value) : null,
+        note: document.getElementById('r-note').value.trim(),
+      };
+      if (!obj.fra) { alert('Fra-dato er påkrævet'); return; }
+      if (id) Data.updateRenteperiode(id, obj); else Data.addRenteperiode(obj);
+      closeModal(); renderOpsaetning();
+    });
+  }
+
+  function editDeltager(id, lan_id) {
+    const d = id ? Data.get().deltagere.find(x => x.id === id) : { lan_id };
+    const title = id ? 'Redigér deltager' : 'Ny deltager';
+    const indfrArr = d.indfrielser || [];
+    const body = `
+      <div class="row row-2">
+        <div class="field"><label>Lejlighedsnr *</label><input class="input" id="d-lejl" value="${Util.escHtml(d.lejl_nr||'')}"></div>
+        <div class="field"><label>Fordelingstal *</label><input class="input input-num" type="number" step="0.01" id="d-ford" value="${d.fordelingstal||''}"></div>
+      </div>
+      <div class="field"><label>Navn *</label><input class="input" id="d-navn" value="${Util.escHtml(d.navn||'')}"></div>
+      <div class="field"><label>Adresse</label><input class="input" id="d-adr" value="${Util.escHtml(d.adresse||'')}"></div>
+      <div class="row row-2">
+        <div class="field"><label>Indtrådt <small>— tom = lånets udbetalingsdato</small></label><input class="input" type="date" id="d-ind" value="${d.indtradt||''}"></div>
+        <div class="field"><label>Udtrådt <small>— sæt dato, hvis udtrådt af lånet</small></label><input class="input" type="date" id="d-udt" value="${d.udtradt||''}"></div>
+      </div>
+      <div class="field">
+        <label>Tidligere indfrielser</label>
+        <div id="d-indfr-list" style="margin-bottom:.5rem">${indfrArr.length === 0 ? '<p class="muted" style="font-size:.82rem">Ingen tidligere indfrielser.</p>' : indfrArr.map((i,idx)=>`
+          <div class="flex gap-2 items-center" style="margin-bottom:.3rem">
+            <input class="input" type="date" value="${i.dato||''}" data-idx="${idx}" data-fld="dato">
+            <input class="input input-num" type="number" step="0.01" value="${i.beloeb||''}" data-idx="${idx}" data-fld="beloeb" placeholder="Beløb">
+            <input class="input" value="${Util.escHtml(i.note||'')}" data-idx="${idx}" data-fld="note" placeholder="Note">
+            <button class="btn btn-ghost btn-sm" data-rm-idx="${idx}">✕</button>
+          </div>
+        `).join('')}</div>
+        <button class="btn btn-outline btn-sm" id="d-add-indfr">+ Tilføj indfrielse</button>
+      </div>
+      <div class="field"><label>Note</label><textarea class="textarea" id="d-note">${Util.escHtml(d.note||'')}</textarea></div>
+    `;
+    const foot = `
+      <button class="btn btn-ghost" onclick="UI.closeModal()">Annullér</button>
+      <button class="btn btn-primary" id="d-save">Gem</button>
+    `;
+    openModal(title, body, foot);
+    const readIndfr = () => {
+      const rows = document.querySelectorAll('#d-indfr-list .flex');
+      return Array.from(rows).map(row => {
+        const ins = row.querySelectorAll('[data-fld]');
+        const o = {};
+        ins.forEach(i => o[i.dataset.fld] = i.dataset.fld === 'beloeb' ? parseFloat(i.value) || 0 : i.value);
+        return o;
+      }).filter(x => x.dato && x.beloeb);
+    };
+    document.getElementById('d-add-indfr').addEventListener('click', () => {
+      const list = document.getElementById('d-indfr-list');
+      // Clear empty-state text if present
+      if (list.querySelector('.muted')) list.innerHTML = '';
+      const idx = list.querySelectorAll('.flex').length;
+      const row = document.createElement('div');
+      row.className = 'flex gap-2 items-center';
+      row.style.marginBottom = '.3rem';
+      row.innerHTML = `
+        <input class="input" type="date" data-idx="${idx}" data-fld="dato">
+        <input class="input input-num" type="number" step="0.01" data-idx="${idx}" data-fld="beloeb" placeholder="Beløb">
+        <input class="input" data-idx="${idx}" data-fld="note" placeholder="Note">
+        <button class="btn btn-ghost btn-sm" data-rm-idx="${idx}">✕</button>
+      `;
+      list.appendChild(row);
+      row.querySelector('[data-rm-idx]').addEventListener('click', () => row.remove());
+    });
+    document.querySelectorAll('[data-rm-idx]').forEach(b => b.addEventListener('click', (e) => {
+      b.closest('.flex').remove();
+    }));
+    document.getElementById('d-save').addEventListener('click', () => {
+      const obj = {
+        id: d.id,
+        lan_id: d.lan_id || lan_id,
+        lejl_nr: document.getElementById('d-lejl').value.trim(),
+        navn: document.getElementById('d-navn').value.trim(),
+        adresse: document.getElementById('d-adr').value.trim(),
+        fordelingstal: parseFloat(document.getElementById('d-ford').value) || 0,
+        indtradt: document.getElementById('d-ind').value || null,
+        udtradt: document.getElementById('d-udt').value || null,
+        note: document.getElementById('d-note').value.trim(),
+        indfrielser: readIndfr(),
+      };
+      if (!obj.lejl_nr) { alert('Lejlighedsnummer er påkrævet'); return; }
+      if (!obj.navn) { alert('Navn er påkrævet'); return; }
+      if (id) Data.updateDeltager(id, obj); else Data.addDeltager(obj);
+      closeModal(); renderOpsaetning();
+    });
+  }
+
+  /* ─── Lån selectors on other tabs ─── */
+  function renderLanSelectors() {
+    const lan = Data.get().lan;
+    const opts = lan.length === 0
+      ? '<option value="">— Ingen lån —</option>'
+      : lan.map(l => {
+          const e = Data.ejendomById(l.ejendom_id);
+          return `<option value="${l.id}">${Util.escHtml(e ? e.navn : '?')} — ${Util.escHtml(l.navn)}</option>`;
+        }).join('');
+    for (const sel of ['i-lan','o-lan','b-lan']) {
+      const el = document.getElementById(sel);
+      if (el) { const v = el.value; el.innerHTML = opts; el.value = v || (lan[0]?.id || ''); }
+    }
+  }
+
+  /* ─── INDFRIELSE ─── */
+  function updateIndfrielseDeltagere() {
+    const lan_id = document.getElementById('i-lan').value;
+    const dato = document.getElementById('i-dato').value || Util.isoDate(new Date());
+    if (!document.getElementById('i-dato').value) document.getElementById('i-dato').value = dato;
+    const lan = Data.lanById(lan_id);
+    const card = document.getElementById('i-vaelg-deltagere-card');
+    const list = document.getElementById('i-deltager-list');
+    if (!lan) { card.style.display = 'none'; document.getElementById('i-resultat').style.display='none'; return; }
+    const deltagere = Data.deltagereForLan(lan_id);
+    const dateD = Util.parseDate(dato);
+    const active = deltagere.filter(d => {
+      const ind = Util.parseDate(d.indtradt) || Util.parseDate(lan.udbetalingsdato);
+      const ud  = Util.parseDate(d.udtradt);
+      return (!ind || ind <= dateD) && (!ud || ud >= dateD);
+    });
+    card.style.display = 'block';
+    list.innerHTML = active.length === 0
+      ? '<p class="muted">Ingen aktive deltagere på denne dato.</p>'
+      : active.map(d => `<label><input type="checkbox" value="${d.id}" data-del> ${Util.escHtml(d.lejl_nr)} · ${Util.escHtml(d.navn)} <span class="muted">(fordel ${Util.fmtNum(+d.fordelingstal||0,2)})</span></label>`).join('');
+    list.querySelectorAll('input').forEach(cb => cb.addEventListener('change', computeIndfrielse));
+    computeIndfrielse();
+  }
+
+  function computeIndfrielse() {
+    const lan_id = document.getElementById('i-lan').value;
+    const dato   = document.getElementById('i-dato').value;
+    const lan = Data.lanById(lan_id);
+    if (!lan || !dato) return;
+    const selected = Array.from(document.querySelectorAll('#i-deltager-list input[type=checkbox]:checked')).map(cb => cb.value);
+    if (selected.length === 0) { document.getElementById('i-resultat').style.display='none'; return; }
+
+    const renter = Data.renterForLan(lan_id);
+    const deltagere = Data.deltagereForLan(lan_id);
+    const op = Calc.opgorelse(lan, renter, deltagere, dato);
+    const gebyr = parseFloat(document.getElementById('i-gebyr').value) || 0;
+
+    const selRows = op.pr_deltager.filter(r => selected.includes(r.deltager.id));
+    const sumSaldo   = selRows.reduce((s,r)=>s+r.andel_saldo,0);
+    const sumAccrued = selRows.reduce((s,r)=>s+r.andel_accrued,0);
+    const gebyrPrDeltager = selRows.length > 0 ? gebyr / selRows.length : 0;
+
+    const ejendom = Data.ejendomById(lan.ejendom_id);
+    const rent = Calc.rateOn(renter, dato);
+
+    let html = `
+      <div class="brevpapir">
+        <div class="brevpapir-head">
+          <div class="brevpapir-logo">
+            <div class="brevpapir-logo-mark">B</div>
+            <div><div class="brevpapir-title">Blomfelt A/S</div><div class="brevpapir-sub">Ejendomsadministration</div></div>
+          </div>
+          <div class="brevpapir-contact">Blomfelt A/S · CVR 12345678<br>Dato: ${Util.fmtDate(new Date())}</div>
+        </div>
+        <div class="brevpapir-doc-title">Indfrielsesopgørelse · ${Util.escHtml(ejendom?.navn||'')}</div>
+      </div>
+      <div class="row row-4" style="margin-bottom:1rem;">
+        <div class="card card-sm" style="margin:0;"><div class="muted" style="font-size:.7rem; text-transform:uppercase; font-weight:600;">Ejendom</div><div style="font-weight:600;">${Util.escHtml(ejendom?.navn||'')}</div></div>
+        <div class="card card-sm" style="margin:0;"><div class="muted" style="font-size:.7rem; text-transform:uppercase; font-weight:600;">Lån</div><div style="font-weight:600;">${Util.escHtml(lan.navn)}</div></div>
+        <div class="card card-sm" style="margin:0;"><div class="muted" style="font-size:.7rem; text-transform:uppercase; font-weight:600;">Skæringsdato</div><div style="font-weight:600;">${Util.fmtDate(dato)}</div></div>
+        <div class="card card-sm" style="margin:0;"><div class="muted" style="font-size:.7rem; text-transform:uppercase; font-weight:600;">Rente p.t.</div><div style="font-weight:600;">${Util.fmtPct(rent,4)}</div></div>
+      </div>
+      <div class="row row-3" style="margin-bottom:1rem;">
+        <div class="card card-sm" style="margin:0;"><div class="muted" style="font-size:.7rem;">Samlet restgæld på lånet</div><div style="font-weight:600; font-size:1.1rem;">${Util.fmtKr(op.total_saldo)} DKK</div></div>
+        <div class="card card-sm" style="margin:0;"><div class="muted" style="font-size:.7rem;">Ikke-tilskrevne renter</div><div style="font-weight:600; font-size:1.1rem;">${Util.fmtKr(op.accrued)} DKK</div><div class="muted" style="font-size:.72rem">siden ${op.last_capitalization ? Util.fmtDate(op.last_capitalization) : '—'}</div></div>
+        <div class="card card-sm" style="margin:0;"><div class="muted" style="font-size:.7rem;">Indfrielse i alt</div><div style="font-weight:600; font-size:1.1rem; color:var(--blomfelt-green);">${Util.fmtKr(sumSaldo + sumAccrued + gebyr)} DKK</div></div>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr>
+            <th>Lejl</th><th>Navn</th><th>Adresse</th>
+            <th class="num">Fordel</th>
+            <th class="num">Andel af saldo</th>
+            <th class="num">Andel af renter</th>
+            <th class="num">Gebyr</th>
+            <th class="num">Indfrielse i alt</th>
+          </tr></thead>
+          <tbody>
+            ${selRows.map(r => `
+              <tr>
+                <td>${Util.escHtml(r.deltager.lejl_nr)}</td>
+                <td>${Util.escHtml(r.deltager.navn)}</td>
+                <td>${Util.escHtml(r.deltager.adresse||'')}</td>
+                <td class="num">${Util.fmtNum(+r.deltager.fordelingstal||0,2)}</td>
+                <td class="num">${Util.fmtKr(r.andel_saldo)}</td>
+                <td class="num">${Util.fmtKr(r.andel_accrued)}</td>
+                <td class="num">${Util.fmtKr(gebyrPrDeltager)}</td>
+                <td class="num" style="font-weight:700;">${Util.fmtKr(r.andel_saldo + r.andel_accrued + gebyrPrDeltager)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4">I alt (${selRows.length} deltager${selRows.length===1?'':'e'})</td>
+              <td class="num">${Util.fmtKr(sumSaldo)}</td>
+              <td class="num">${Util.fmtKr(sumAccrued)}</td>
+              <td class="num">${Util.fmtKr(gebyr)}</td>
+              <td class="num">${Util.fmtKr(sumSaldo + sumAccrued + gebyr)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="muted" style="font-size:.78rem; margin-top:1rem;">
+        Renten er beregnet fra sidste rentetilskrivning (${op.last_capitalization ? Util.fmtDate(op.last_capitalization) : '—'}) til skæringsdato på hver deltagers forholdsmæssige andel af restgælden. Gebyret er fordelt ligeligt mellem de valgte deltagere.
+      </p>
+      <p class="muted" style="font-size:.72rem; margin-top:.5rem; font-style: italic;">
+        Beregnet ${Util.fmtDate(new Date())} med Blomfelt Fælleslån v1. Resultatet SKAL kontrolleres mod bankens egen opgørelse før udbetaling.
+      </p>
+    `;
+
+    document.getElementById('i-resultat').style.display = 'block';
+    document.getElementById('i-resultat').classList.add('print-target');
+    // unmark other pages
+    document.querySelectorAll('.page.print-target').forEach(p => p.classList.remove('print-target'));
+    document.getElementById('page-indfrielse').classList.add('print-target');
+    document.getElementById('i-resultat-body').innerHTML = html;
+  }
+
+  /* ─── PERIODEOPGØRELSE ─── */
+  function computeOpgorelse() {
+    const lan_id = document.getElementById('o-lan').value;
+    const fra = document.getElementById('o-fra').value;
+    const til = document.getElementById('o-til').value;
+    if (!lan_id || !fra || !til) { alert('Vælg lån og datoer'); return; }
+    const lan = Data.lanById(lan_id);
+    const renter = Data.renterForLan(lan_id);
+    const deltagere = Data.deltagereForLan(lan_id);
+    const op = Calc.periodeOpgorelse(lan, renter, deltagere, fra, til);
+    const ejendom = Data.ejendomById(lan.ejendom_id);
+
+    const html = `
+      <div class="brevpapir">
+        <div class="brevpapir-head">
+          <div class="brevpapir-logo">
+            <div class="brevpapir-logo-mark">B</div>
+            <div><div class="brevpapir-title">Blomfelt A/S</div><div class="brevpapir-sub">Ejendomsadministration</div></div>
+          </div>
+          <div class="brevpapir-contact">Blomfelt A/S · CVR 12345678<br>Dato: ${Util.fmtDate(new Date())}</div>
+        </div>
+        <div class="brevpapir-doc-title">Periodeopgørelse fælleslån · ${Util.escHtml(ejendom?.navn||'')}</div>
+      </div>
+      <div class="row row-4" style="margin-bottom:1rem;">
+        <div class="card card-sm" style="margin:0;"><div class="muted" style="font-size:.7rem;">Ejendom</div><div style="font-weight:600;">${Util.escHtml(ejendom?.navn||'')}</div></div>
+        <div class="card card-sm" style="margin:0;"><div class="muted" style="font-size:.7rem;">Lån</div><div style="font-weight:600;">${Util.escHtml(lan.navn)}</div></div>
+        <div class="card card-sm" style="margin:0;"><div class="muted" style="font-size:.7rem;">Periode</div><div style="font-weight:600;">${Util.fmtDate(fra)} — ${Util.fmtDate(til)}</div></div>
+        <div class="card card-sm" style="margin:0;"><div class="muted" style="font-size:.7rem;">Renter / afdrag i perioden</div><div style="font-weight:600;">${Util.fmtKr(op.total_renter)} / ${Util.fmtKr(op.total_afdrag)}</div></div>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr>
+            <th>Lejl</th><th>Navn</th><th>Adresse</th>
+            <th class="num">Fordel</th>
+            <th class="num">Primo saldo</th>
+            <th class="num">Afdrag i perioden</th>
+            <th class="num">Renter i perioden</th>
+            <th class="num">Ultimo saldo</th>
+            <th>Status</th>
+          </tr></thead>
+          <tbody>
+            ${op.pr_deltager.map(r => `
+              <tr>
+                <td>${Util.escHtml(r.deltager.lejl_nr)}</td>
+                <td>${Util.escHtml(r.deltager.navn)}</td>
+                <td>${Util.escHtml(r.deltager.adresse||'')}</td>
+                <td class="num">${Util.fmtNum(+r.deltager.fordelingstal||0,2)}</td>
+                <td class="num">${Util.fmtKr(r.primo_saldo)}</td>
+                <td class="num">${Util.fmtKr(r.afdrag_andel)}</td>
+                <td class="num">${Util.fmtKr(r.renter_andel)}</td>
+                <td class="num" style="font-weight:600;">${r.udtradt_i_perioden ? Util.fmtKr(0) : Util.fmtKr(r.ultimo_saldo)}</td>
+                <td>${r.udtradt_i_perioden ? `<span class="badge badge-muted">Udtrådt ${Util.fmtDate(r.deltager.udtradt)}</span>` : (r.deltager.udtradt ? `<span class="badge badge-muted">Tidl. udtrådt</span>` : '<span class="badge badge-green">Aktiv</span>')}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4">I alt</td>
+              <td class="num">${Util.fmtKr(op.total_primo)}</td>
+              <td class="num">${Util.fmtKr(op.total_afdrag)}</td>
+              <td class="num">${Util.fmtKr(op.total_renter)}</td>
+              <td class="num">${Util.fmtKr(op.total_ultimo)}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="muted" style="font-size:.72rem; margin-top:1rem; font-style: italic;">
+        Beregnet ${Util.fmtDate(new Date())} med Blomfelt Fælleslån v1 · Deltagere er fordelt pro-rata efter antal dage aktiv i perioden.
+      </p>
+    `;
+    document.getElementById('o-resultat').style.display = 'block';
+    document.querySelectorAll('.page.print-target').forEach(p => p.classList.remove('print-target'));
+    document.getElementById('page-opgorelse').classList.add('print-target');
+    document.getElementById('o-resultat-body').innerHTML = html;
+    document.getElementById('o-resultat').__data = op;
+  }
+
+  function exportOpgorelseXlsx() {
+    const op = document.getElementById('o-resultat').__data;
+    if (!op) return;
+    const lan = Data.lanById(document.getElementById('o-lan').value);
+    const ejendom = Data.ejendomById(lan.ejendom_id);
+    const rows = [
+      ['Blomfelt A/S — Periodeopgørelse'],
+      ['Ejendom', ejendom?.navn || ''],
+      ['Lån', lan.navn],
+      ['Periode', `${Util.fmtDate(op.fra)} — ${Util.fmtDate(op.til)}`],
+      [],
+      ['Lejl.nr', 'Navn', 'Adresse', 'Fordelingstal', 'Primo saldo', 'Afdrag i perioden', 'Renter i perioden', 'Ultimo saldo', 'Status'],
+    ];
+    for (const r of op.pr_deltager) {
+      rows.push([
+        r.deltager.lejl_nr,
+        r.deltager.navn,
+        r.deltager.adresse || '',
+        +r.deltager.fordelingstal || 0,
+        r.primo_saldo,
+        r.afdrag_andel,
+        r.renter_andel,
+        r.udtradt_i_perioden ? 0 : r.ultimo_saldo,
+        r.udtradt_i_perioden ? `Udtrådt ${Util.fmtDate(r.deltager.udtradt)}` : (r.deltager.udtradt ? 'Tidl. udtrådt' : 'Aktiv')
+      ]);
+    }
+    rows.push([]);
+    rows.push(['I alt', '', '', '', op.total_primo, op.total_afdrag, op.total_renter, op.total_ultimo]);
+    Xlsx.exportAoa(rows, `opgorelse-${lan.navn.replace(/\s+/g,'_')}-${op.fra}-${op.til}.xlsx`, 'Opgørelse');
+  }
+
+  /* ─── BOGFØRING ─── */
+  async function importBogforing() {
+    const lan_id = document.getElementById('b-lan').value;
+    const file = document.getElementById('b-file').files[0];
+    if (!lan_id || !file) { alert('Vælg lån og fil'); return; }
+    try {
+      const rows = await Xlsx.readBogforingFile(file);
+      // Store
+      const stored = rows.map(r => ({ id: Util.uid(), lan_id, dato: r.dato, tekst: r.tekst, beloeb: r.beloeb, konto: r.konto, bilag: r.bilag, type: guessType(r), match_status: 'unmatched' }));
+      Data.setBogforing(lan_id, stored);
+      renderBogforingMatch(lan_id);
+    } catch (e) { alert('Kunne ikke læse fil: ' + e.message); }
+  }
+
+  function guessType(r) {
+    const t = String(r.tekst || '').toLowerCase();
+    if (t.includes('rente')) return 'rente';
+    if (t.includes('ydelse') || t.includes('termin') || t.includes('afdrag')) return 'ydelse';
+    return 'andet';
+  }
+
+  function renderBogforingMatch(lan_id) {
+    const lan = Data.lanById(lan_id);
+    const renter = Data.renterForLan(lan_id);
+    const deltagere = Data.deltagereForLan(lan_id);
+    const posts = Data.bogforingForLan(lan_id);
+    if (posts.length === 0) { document.getElementById('b-resultat').style.display='none'; return; }
+
+    // Use widest period: loan udbetaling → latest booking
+    const fra = lan.udbetalingsdato;
+    const dates = posts.map(p => p.dato).sort();
+    const til = Util.isoDate(Util.parseDate(dates[dates.length-1]));
+
+    const expected = Calc.expectedEvents(lan, renter, deltagere, fra, til);
+    // Match each expected event to a booking within ±10 days with a similar amount
+    const used = new Set();
+    const results = expected.map(ev => {
+      const evD = Util.parseDate(ev.date);
+      const expAmt = ev.type === 'payment' ? (ev.amount || 0) : (ev.interest || 0);
+      let best = null, bestScore = Infinity;
+      for (const p of posts) {
+        if (used.has(p.id)) continue;
+        const pD = Util.parseDate(p.dato);
+        const dayDiff = Math.abs(Util.daysBetween(evD, pD));
+        if (dayDiff > 10) continue;
+        const amtDiff = Math.abs(Math.abs(+p.beloeb) - expAmt);
+        const score = dayDiff * 10 + amtDiff / 100;
+        if (score < bestScore) { bestScore = score; best = p; }
+      }
+      let status = 'missing';
+      if (best) {
+        used.add(best.id);
+        status = (Math.abs(Math.abs(+best.beloeb) - expAmt) < 2) ? 'match' : 'partial';
+        best.match_status = status;
+      }
+      return { event: ev, expected_amount: expAmt, booking: best, status };
+    });
+    const unmatched = posts.filter(p => !used.has(p.id));
+
+    const matched = results.filter(r => r.status === 'match').length;
+    const missing = results.filter(r => r.status === 'missing').length;
+    const partial = results.filter(r => r.status === 'partial').length;
+
+    document.getElementById('b-summary').textContent = `${matched} match · ${partial} afvigelse · ${missing} mangler · ${unmatched.length} ikke-genkendt`;
+
+    let html = `
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr>
+            <th>Forventet dato</th><th>Type</th><th class="num">Forventet beløb</th>
+            <th>Bogført dato</th><th class="num">Bogført beløb</th><th>Tekst</th><th>Status</th>
+          </tr></thead>
+          <tbody>
+            ${results.map(r => {
+              const s = r.status;
+              const badge = s==='match'   ? '<span class="badge badge-green">Match</span>'
+                          : s==='partial' ? '<span class="badge badge-warn">Afvigelse</span>'
+                          : '<span class="badge badge-danger">Mangler</span>';
+              return `<tr>
+                <td>${Util.fmtDate(r.event.date)}</td>
+                <td>${r.event.type === 'payment' ? 'Ydelse' : 'Rentetilskrivning'}</td>
+                <td class="num">${Util.fmtKr(r.expected_amount)}</td>
+                <td>${r.booking ? Util.fmtDate(r.booking.dato) : '<span class="muted">—</span>'}</td>
+                <td class="num">${r.booking ? Util.fmtKr(Math.abs(+r.booking.beloeb)) : ''}</td>
+                <td style="font-size:.8rem">${Util.escHtml(r.booking?.tekst||'')}</td>
+                <td>${badge}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      ${unmatched.length === 0 ? '' : `
+        <div class="card-title mt-4">Ikke-genkendte bogføringsposter</div>
+        <p class="muted" style="font-size:.82rem;">Disse poster kunne ikke matches til en forventet ydelse eller rentetilskrivning. Det kan være ekstraordinære indbetalinger (fx indfrielser), gebyrer, eller fejlbogføringer.</p>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Dato</th><th class="num">Beløb</th><th>Tekst</th><th>Konto</th></tr></thead>
+            <tbody>
+              ${unmatched.map(p => `<tr>
+                <td>${Util.fmtDate(p.dato)}</td>
+                <td class="num">${Util.fmtKr(+p.beloeb)}</td>
+                <td style="font-size:.8rem">${Util.escHtml(p.tekst||'')}</td>
+                <td>${Util.escHtml(p.konto||'')}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      `}
+    `;
+    document.getElementById('b-resultat-body').innerHTML = html;
+    document.getElementById('b-resultat').style.display = 'block';
+  }
+
+  /* ─── DATA info ─── */
+  function renderDataInfo() {
+    const d = Data.get();
+    const size = Storage.size();
+    const el = document.getElementById('d-info');
+    if (!el) return;
+    el.innerHTML = `
+      <div class="row row-4">
+        <div class="card card-sm" style="margin:0;"><div class="muted" style="font-size:.7rem;">Ejendomme</div><div style="font-weight:600; font-size:1.1rem;">${d.ejendomme.length}</div></div>
+        <div class="card card-sm" style="margin:0;"><div class="muted" style="font-size:.7rem;">Lån</div><div style="font-weight:600; font-size:1.1rem;">${d.lan.length}</div></div>
+        <div class="card card-sm" style="margin:0;"><div class="muted" style="font-size:.7rem;">Deltagere</div><div style="font-weight:600; font-size:1.1rem;">${d.deltagere.length}</div></div>
+        <div class="card card-sm" style="margin:0;"><div class="muted" style="font-size:.7rem;">Bogførings­poster</div><div style="font-weight:600; font-size:1.1rem;">${d.bogforing.length}</div></div>
+      </div>
+      <p class="muted mt-3" style="font-size:.82rem;">
+        Samlet størrelse i localStorage: <strong>${(size/1024).toFixed(1)} KB</strong>.
+        Data er kun gemt i denne browser — brug <strong>Eksportér</strong> regelmæssigt for at sikre dig mod datatab.
+      </p>
+    `;
+  }
+
+  /* ─── DEMO DATA (EF Katrinedalsvej 46) ─── */
+  function loadDemoData() {
+    const d = Storage.initial();
+    // Ejendom
+    const ej = { id: 'demo-ef-katrinedalsvej-46', navn: 'EF Katrinedalsvej 46', adresse: 'Katrinedalsvej 46', postnr: '2720', by: 'Vanløse', cvr: '76024111', note: 'Demo-ejendom (tidligere ejendomsnr. 1016 hos Vest Administrationen)' };
+    d.ejendomme.push(ej);
+
+    // Lån 1: Danske Bank Hovedstol 1.300.000 (oprindeligt)
+    const l1 = { id: 'demo-lan-dankeLaan-1300000', ejendom_id: ej.id, navn: 'Danske Lån 1.300.000 (22.09.2022)', lanetype: 'faelleslaan', kreditor: 'Danske Bank', konto: '4816077532', reference: '0076024111', hovedstol: 1300000, stiftelsesomk: 10000, udbetalingsdato: '2022-09-22', slutdato: '2042-07-31', oprindelig_lobetid_md: 239, ydelse_frekvens: 'maanedlig', rentetilskriv_frekvens: 'kvartal', note: '238 ydelser à 8.050 kr + slutydelse 4.188,40 kr. Nu løbende som "Fælleslån 2" efter 7 indfrielser i 2023.' };
+    d.lan.push(l1);
+    d.renteperioder.push({ id: Util.uid(), lan_id: l1.id, fra: '2022-09-22', til: null, rente_pct: 4.25, ydelse: 8050, note: 'Initiel rente ved udbetaling' });
+
+    // Lån 2: Danske Bank 983.480,67 (refinansiering/nyt lån efter indfrielser)
+    const l2 = { id: 'demo-lan-danske-983k', ejendom_id: ej.id, navn: 'Danske Lån 983.480,67 (16.03.2023)', lanetype: 'faelleslaan', kreditor: 'Danske Bank', konto: '4816077532', reference: '0076024111', hovedstol: 983480.67, stiftelsesomk: 10000, udbetalingsdato: '2023-03-16', slutdato: '2043-02-27', oprindelig_lobetid_md: 240, ydelse_frekvens: 'maanedlig', rentetilskriv_frekvens: 'kvartal', note: '239 ydelser à 7.070 kr + slutydelse 5.752,79 kr. Efter indfrielse af 7 lejl. fra 1.300.000 lånet.' };
+    d.lan.push(l2);
+    d.renteperioder.push({ id: Util.uid(), lan_id: l2.id, fra: '2023-03-16', til: null, rente_pct: 6.10, ydelse: 7070, note: 'Initiel rente' });
+
+    // Lån 3: Gammel Erhvervslån (kvartalsvis)
+    const l3 = { id: 'demo-lan-erhvervslaan', ejendom_id: ej.id, navn: 'Erhvervslån 3345828095', lanetype: 'erhvervslaan', kreditor: 'Danske Bank', konto: '3345828095', reference: '', hovedstol: 262958.69, stiftelsesomk: 0, udbetalingsdato: '2021-01-01', slutdato: '2028-12-31', oprindelig_lobetid_md: 96, ydelse_frekvens: 'kvartal', rentetilskriv_frekvens: 'kvartal', note: 'Gammelt erhvervslån — data fra "2720 fælleslån.xlsx". Primo 2022 ca. 237k. NB: hovedstol/udbetalingsdato er estimat — tilpas efter jeres dokumentation.' };
+    d.lan.push(l3);
+    d.renteperioder.push({ id: Util.uid(), lan_id: l3.id, fra: '2021-01-01', til: null, rente_pct: 4.50, ydelse: null, note: '4,50% fra referencearket' });
+
+    // Deltagere Lån 2 (24 lejligheder med fordelingstal 33.00 efter 7 indfrielser)
+    // Fordeling: lejl 1-31, summen er 42 oprindeligt. Indfriede: 9, 15, 22, 25, 27, 29, 30 (fordel 9.00 fjernes → 33)
+    const demoDeltagere = [
+      { lejl: '1',  fordel: 2.00, navn: 'Jack Thomsen',                        adr: 'Katrinedalsvej 46, kld' },
+      { lejl: '2',  fordel: 1.00, navn: 'Niels Erik & Waffa Jørgensen',        adr: 'Katrinedalsvej 46, st. -1' },
+      { lejl: '3',  fordel: 1.00, navn: 'David Krarup',                         adr: 'Katrinedalsvej 46, st. -2' },
+      { lejl: '4',  fordel: 1.00, navn: 'Scandinavian Housing IVS',             adr: 'Smidstrupørevej 2, 2960 Rungsted Kyst' },
+      { lejl: '5',  fordel: 1.40, navn: 'Frank Nielsen',                        adr: 'Katrinedalsvej 46, st. -4' },
+      { lejl: '6',  fordel: 1.40, navn: 'Anders Busse Bendtsen',                adr: 'Katrinedalsvej 46, st. -5' },
+      { lejl: '7',  fordel: 1.40, navn: '(Lejer 7)',                            adr: 'Katrinedalsvej 46, st. -6' },
+      { lejl: '8',  fordel: 1.40, navn: 'Yue Qun Feng',                         adr: 'Katrinedalsvej 46, st. -7' },
+      // lejl 9: indfriet (udeladt fra Lån 2)
+      { lejl: '10', fordel: 3.00, navn: 'Finn Erik Jensen',                     adr: 'Katrinedalsvej 46, st. -9' },
+      { lejl: '11', fordel: 1.00, navn: 'Jack Thomsen (Malte Friis Burgaard)',  adr: 'Katrinedalsvej 46, 1. -10' },
+      { lejl: '12', fordel: 1.40, navn: '(Lejer 12)',                           adr: 'Katrinedalsvej 46, 1. -11' },
+      { lejl: '13', fordel: 1.40, navn: '(Lejer 13)',                           adr: 'Katrinedalsvej 46, 1. -12' },
+      { lejl: '14', fordel: 1.00, navn: '(Lejer 14)',                           adr: 'Katrinedalsvej 46, 1. -13' },
+      // lejl 15: indfriet
+      { lejl: '16', fordel: 1.40, navn: 'Olga Mylona',                          adr: 'Edisonsvej 12, 4. th., 1856 Frederiksberg C' },
+      { lejl: '17', fordel: 1.40, navn: '(Lejer 17)',                           adr: 'Katrinedalsvej 46, 1. -16' },
+      { lejl: '18', fordel: 1.40, navn: '(Lejer 18)',                           adr: 'Katrinedalsvej 46, 1. -17' },
+      { lejl: '19', fordel: 1.00, navn: 'Daniel Di Pierro',                     adr: 'Katrinedalsvej 46, 1. -18' },
+      { lejl: '20', fordel: 1.40, navn: '(Lejer 20)',                           adr: 'Katrinedalsvej 46, 1. -19' },
+      { lejl: '21', fordel: 1.40, navn: '(Lejer 21)',                           adr: 'Katrinedalsvej 46, 1. -20' },
+      // lejl 22: indfriet
+      { lejl: '23', fordel: 1.40, navn: 'Steen Phillips (Niels Kaae)',          adr: 'Katrinedalsvej 46, 2. -22' },
+      { lejl: '24', fordel: 1.00, navn: '(Lejer 24)',                           adr: 'Katrinedalsvej 46, 2. -23' },
+      // lejl 25: indfriet
+      { lejl: '26', fordel: 1.40, navn: 'Pia Muldgaard',                        adr: 'Katrinedalsvej 46, 2. -25' },
+      // lejl 27: indfriet
+      { lejl: '28', fordel: 1.40, navn: 'Frits Juul',                           adr: 'Katrinedalsvej 46, 2. -27' },
+      // lejl 29, 30: indfriet
+      { lejl: '31', fordel: 1.40, navn: 'Søren Peer Stage',                     adr: 'Katrinedalsvej 46, 2. -30' },
+    ];
+    for (const dm of demoDeltagere) {
+      d.deltagere.push({
+        id: Util.uid(), lan_id: l2.id,
+        lejl_nr: dm.lejl, navn: dm.navn, adresse: dm.adr,
+        fordelingstal: dm.fordel,
+        indtradt: l2.udbetalingsdato, udtradt: null,
+        note: '',
+      });
+    }
+
+    // Gem
+    Data.replaceAll(d);
+  }
+
+  return { init, show, closeModal };
+})();
+
+/* ═══ BOOT ═══════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', UI.init);
+</script>
+
+</body>
+</html>

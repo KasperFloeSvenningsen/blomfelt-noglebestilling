@@ -1,3 +1,9 @@
 dist/
 node_modules/
 *.log
+# Interne valideringsartefakter
+**/.validation/
+# Lokal data fra Midas Express-server
+Blomfelt Midas dashboard/blomfelt-dashboard/data/db.json
+Blomfelt Midas dashboard/blomfelt-dashboard/data/auth.json
+Blomfelt Midas dashboard/blomfelt-dashboard/cookies.txt
