@@ -537,6 +537,16 @@ body {
     </div>
   </div>
 
+  <div class="card card-sm" style="display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; padding:.75rem 1rem;">
+    <input class="input" id="ej-srch" placeholder="Søg på selskab, kunde, adresse, postnr eller by…" style="flex:1; min-width:260px;">
+    <div style="display:flex; gap:.4rem; align-items:center; flex-wrap:wrap;">
+      <span class="muted" style="font-size:.78rem;">Sortér:</span>
+      <button class="btn btn-outline btn-sm" id="ej-sort-selskab" data-col="selskab">Selskab <span class="sort-ind">↕</span></button>
+      <button class="btn btn-outline btn-sm" id="ej-sort-navn" data-col="navn">Kunde <span class="sort-ind">↕</span></button>
+    </div>
+    <span class="muted" id="ej-count" style="font-size:.78rem; margin-left:auto;"></span>
+  </div>
+
   <div id="tree-ejendomme"></div>
 </section>
 
@@ -867,6 +877,22 @@ const Util = {
   },
   /** Round to 2 decimals (currency). */
   r2(n) { return Math.round((+n + Number.EPSILON) * 100) / 100; },
+
+  /** Udtræk selskabsnummer fra parentes i foreningsnavn (fx "I/S Bredballe (2023)" → "2023"). */
+  extractSelskab(navn) {
+    if (!navn) return '';
+    const m = String(navn).match(/\(([^)]+)\)/);
+    return m ? m[1].trim() : '';
+  },
+  /** Split "Gade 12, 2720 Vanløse" → {adresse, postnr, by}. */
+  parseAdresse(full) {
+    if (!full) return { adresse: '', postnr: '', by: '' };
+    const s = String(full).trim();
+    if (!s) return { adresse: '', postnr: '', by: '' };
+    const m = s.match(/^(.+?)[,\s]+(\d{4})\s+([^,\d]+?)$/);
+    if (m) return { adresse: m[1].replace(/,\s*$/, '').trim(), postnr: m[2], by: m[3].trim() };
+    return { adresse: s, postnr: '', by: '' };
+  },
 };
 
 /* ═══ STORAGE ══════════════════════════════════════════════ */
@@ -878,7 +904,24 @@ const Storage = {
       const raw = localStorage.getItem(this.KEY);
       if (!raw) return this.initial();
       const data = JSON.parse(raw);
-      return Object.assign(this.initial(), data);
+      const merged = Object.assign(this.initial(), data);
+      // Migration: udfyld selskab fra parentes + split kombineret adresse
+      let changed = 0;
+      for (const e of (merged.ejendomme || [])) {
+        if ((!e.selskab || String(e.selskab).trim() === '') && e.navn) {
+          const s = Util.extractSelskab(e.navn);
+          if (s) { e.selskab = s; changed++; }
+        }
+        if ((e.adresse || '') && (!e.postnr || e.postnr === '') && (!e.by || e.by === '')) {
+          const p = Util.parseAdresse(e.adresse);
+          if (p.postnr) { e.adresse = p.adresse; e.postnr = p.postnr; e.by = p.by; changed++; }
+        }
+      }
+      if (changed > 0) {
+        try { localStorage.setItem(this.KEY, JSON.stringify(merged)); } catch (_) {}
+        console.log(`Migration: ${changed} ejendomme opdateret (selskab/adresse)`);
+      }
+      return merged;
     } catch (e) {
       console.error('Storage load failed', e);
       return this.initial();
@@ -1442,7 +1485,7 @@ const Xlsx = (function() {
   const SHEETS = [
     {
       name: 'Ejendomme', key: 'ejendomme',
-      cols: ['id','navn','adresse','postnr','by','cvr','note']
+      cols: ['id','selskab','navn','adresse','postnr','by','cvr','note']
     },
     {
       name: 'Lån', key: 'lan',
@@ -1728,10 +1771,72 @@ const UI = (function() {
   }
 
   /* ─── OPSÆTNING: tree view ──────────────────────────── */
+  let ejSort = { col: 'selskab', dir: 'asc' };
+
+  function filterAndSortEjendomme(list) {
+    const srch = (document.getElementById('ej-srch')?.value || '').toLowerCase().trim();
+    const filtered = !srch ? list.slice() : list.filter(e =>
+      (e.navn||'').toLowerCase().includes(srch) ||
+      String(e.selskab||'').toLowerCase().includes(srch) ||
+      (e.adresse||'').toLowerCase().includes(srch) ||
+      String(e.postnr||'').includes(srch) ||
+      (e.by||'').toLowerCase().includes(srch) ||
+      (e.cvr||'').includes(srch)
+    );
+    const dir = ejSort.dir === 'desc' ? -1 : 1;
+    filtered.sort((a, b) => {
+      if (ejSort.col === 'selskab') {
+        const sa = parseInt(a.selskab || '99999'), sb = parseInt(b.selskab || '99999');
+        if (isNaN(sa) || isNaN(sb)) return dir * String(a.selskab||'').localeCompare(String(b.selskab||''), 'da');
+        return dir * (sa - sb);
+      }
+      return dir * String(a.navn||'').localeCompare(String(b.navn||''), 'da', { sensitivity:'base' });
+    });
+    return filtered;
+  }
+
+  function updateSortIndicators() {
+    for (const col of ['selskab','navn']) {
+      const btn = document.getElementById(`ej-sort-${col}`);
+      if (!btn) continue;
+      const ind = btn.querySelector('.sort-ind');
+      if (!ind) continue;
+      if (ejSort.col === col) {
+        ind.textContent = ejSort.dir === 'desc' ? '↓' : '↑';
+        btn.classList.remove('btn-outline');
+        btn.classList.add('btn-primary');
+      } else {
+        ind.textContent = '↕';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline');
+      }
+    }
+  }
+
+  function bindOpsaetningControls() {
+    const srch = document.getElementById('ej-srch');
+    if (srch && !srch.__bound) { srch.__bound = true; srch.addEventListener('input', renderOpsaetning); }
+    for (const col of ['selskab','navn']) {
+      const btn = document.getElementById(`ej-sort-${col}`);
+      if (btn && !btn.__bound) {
+        btn.__bound = true;
+        btn.addEventListener('click', () => {
+          if (ejSort.col === col) ejSort.dir = ejSort.dir === 'asc' ? 'desc' : 'asc';
+          else { ejSort.col = col; ejSort.dir = 'asc'; }
+          renderOpsaetning();
+        });
+      }
+    }
+  }
+
   function renderOpsaetning() {
+    bindOpsaetningControls();
+    updateSortIndicators();
     const root = document.getElementById('tree-ejendomme');
     const d = Data.get();
+    const countEl = document.getElementById('ej-count');
     if (d.ejendomme.length === 0) {
+      if (countEl) countEl.textContent = '';
       root.innerHTML = `
         <div class="card empty-state">
           <h3>Ingen ejendomme endnu</h3>
@@ -1739,7 +1844,15 @@ const UI = (function() {
         </div>`;
       return;
     }
-    root.innerHTML = d.ejendomme.map(e => renderEjendomNode(e)).join('');
+    const view = filterAndSortEjendomme(d.ejendomme);
+    if (countEl) countEl.textContent = view.length === d.ejendomme.length
+      ? `${d.ejendomme.length} ejendom${d.ejendomme.length===1?'':'me'}`
+      : `${view.length} af ${d.ejendomme.length}`;
+    if (view.length === 0) {
+      root.innerHTML = `<div class="card empty-state"><h3>Ingen match</h3><p>Ingen ejendomme matcher søgningen.</p></div>`;
+      return;
+    }
+    root.innerHTML = view.map(e => renderEjendomNode(e)).join('');
     root.querySelectorAll('[data-toggle]').forEach(t => {
       t.addEventListener('click', (ev) => {
         if (ev.target.closest('.tree-head-actions')) return;
@@ -1760,13 +1873,16 @@ const UI = (function() {
 
   function renderEjendomNode(e) {
     const lan = Data.lanForEjendom(e.id);
+    const selskabBadge = e.selskab ? `<span class="badge badge-info" style="margin-right:.5rem; font-family:'Menlo','Consolas',ui-monospace,monospace;">${Util.escHtml(e.selskab)}</span>` : '';
+    const adr = [e.adresse, e.postnr && (e.postnr + ' ' + (e.by||'')).trim()].filter(Boolean).join(', ');
     return `
       <div class="tree-node">
         <div class="tree-head" data-toggle>
-          <div>
+          <div style="display:flex; align-items:center; flex-wrap:wrap; gap:.3rem;">
             <span class="caret">▸</span>
+            ${selskabBadge}
             <span class="tree-label">${Util.escHtml(e.navn || 'Ejendom')}</span>
-            <span class="tree-meta">· ${Util.escHtml([e.adresse, e.postnr && (e.postnr + ' ' + (e.by||'')).trim()].filter(Boolean).join(', '))}</span>
+            <span class="tree-meta">· ${Util.escHtml(adr)}</span>
           </div>
           <div class="tree-head-actions">
             <button class="btn btn-ghost btn-sm" data-action="new-lan" data-id="${e.id}">+ Nyt lån</button>
@@ -1876,13 +1992,14 @@ const UI = (function() {
     const e = id ? Data.get().ejendomme.find(x => x.id === id) : {};
     const title = id ? 'Redigér ejendom' : 'Ny ejendom';
     const body = `
-      <div class="field"><label>Navn *</label><input class="input" id="ej-navn" value="${Util.escHtml(e.navn||'')}"></div>
       <div class="row row-2">
-        <div class="field"><label>Adresse</label><input class="input" id="ej-adresse" value="${Util.escHtml(e.adresse||'')}"></div>
-        <div class="row row-2" style="gap:.6rem">
-          <div class="field"><label>Postnr</label><input class="input" id="ej-postnr" value="${Util.escHtml(e.postnr||'')}"></div>
-          <div class="field"><label>By</label><input class="input" id="ej-by" value="${Util.escHtml(e.by||'')}"></div>
-        </div>
+        <div class="field"><label>Navn *</label><input class="input" id="ej-navn" value="${Util.escHtml(e.navn||'')}" placeholder="f.eks. EF Katrinedalsvej 46 (4033)"></div>
+        <div class="field"><label>Selskab <small>— udtrækkes fra parentes i navn</small></label><input class="input" id="ej-selskab" value="${Util.escHtml(e.selskab||'')}" placeholder="4033"></div>
+      </div>
+      <div class="field"><label>Adresse</label><input class="input" id="ej-adresse" value="${Util.escHtml(e.adresse||'')}" placeholder="Katrinedalsvej 46"></div>
+      <div class="row row-2">
+        <div class="field"><label>Postnr</label><input class="input" id="ej-postnr" value="${Util.escHtml(e.postnr||'')}" placeholder="2720" maxlength="4"></div>
+        <div class="field"><label>By</label><input class="input" id="ej-by" value="${Util.escHtml(e.by||'')}" placeholder="Vanløse"></div>
       </div>
       <div class="field"><label>CVR / SE-nr.</label><input class="input" id="ej-cvr" value="${Util.escHtml(e.cvr||'')}"></div>
       <div class="field"><label>Note</label><textarea class="textarea" id="ej-note">${Util.escHtml(e.note||'')}</textarea></div>
@@ -1892,10 +2009,33 @@ const UI = (function() {
       <button class="btn btn-primary" id="ej-save">Gem</button>
     `;
     openModal(title, body, foot);
+    // Live: auto-udfyld selskab hvis tom, hver gang navn ændres
+    const navnInp = document.getElementById('ej-navn');
+    const selskabInp = document.getElementById('ej-selskab');
+    navnInp.addEventListener('input', () => {
+      if (!selskabInp.value.trim()) {
+        const s = Util.extractSelskab(navnInp.value);
+        if (s) selskabInp.value = s;
+      }
+    });
+    // Live: auto-split adresse hvis postnr/by er tomme og adresse indeholder 4-cifret postnr
+    const adrInp = document.getElementById('ej-adresse');
+    adrInp.addEventListener('blur', () => {
+      const postnrInp = document.getElementById('ej-postnr');
+      const byInp = document.getElementById('ej-by');
+      if (!postnrInp.value && !byInp.value) {
+        const p = Util.parseAdresse(adrInp.value);
+        if (p.postnr) { adrInp.value = p.adresse; postnrInp.value = p.postnr; byInp.value = p.by; }
+      }
+    });
     document.getElementById('ej-save').addEventListener('click', () => {
+      let selskab = document.getElementById('ej-selskab').value.trim();
+      const navn = document.getElementById('ej-navn').value.trim();
+      if (!selskab) selskab = Util.extractSelskab(navn);
       const obj = {
         id: e.id,
-        navn: document.getElementById('ej-navn').value.trim(),
+        navn,
+        selskab,
         adresse: document.getElementById('ej-adresse').value.trim(),
         postnr: document.getElementById('ej-postnr').value.trim(),
         by: document.getElementById('ej-by').value.trim(),
@@ -2527,7 +2667,7 @@ const UI = (function() {
   function loadDemoData() {
     const d = Storage.initial();
     // Ejendom
-    const ej = { id: 'demo-ef-katrinedalsvej-46', navn: 'EF Katrinedalsvej 46', adresse: 'Katrinedalsvej 46', postnr: '2720', by: 'Vanløse', cvr: '76024111', note: 'Demo-ejendom (tidligere ejendomsnr. 1016 hos Vest Administrationen)' };
+    const ej = { id: 'demo-ef-katrinedalsvej-46', selskab: '4033', navn: 'EF Katrinedalsvej 46 (4033)', adresse: 'Katrinedalsvej 46', postnr: '2720', by: 'Vanløse', cvr: '76024111', note: 'Demo-ejendom (tidligere ejendomsnr. 1016 hos Vest Administrationen)' };
     d.ejendomme.push(ej);
 
     // Lån 1: Danske Bank Hovedstol 1.300.000 (oprindeligt)
