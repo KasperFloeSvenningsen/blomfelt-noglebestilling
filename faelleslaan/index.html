@@ -7,7 +7,7 @@
 <title>Fælleslån — Blomfelt</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 /* ───────────────────────────────────────────────────────────
@@ -16,53 +16,94 @@
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
 
 :root {
-  /* Primære farver */
-  --blomfelt-green:       #2C403A;
-  --blomfelt-green-dark:  #1e2e2a;
-  --blomfelt-green-light: #3a5248;
-  --blomfelt-green-50:    #eef3f2;
-  --blomfelt-yellow:      #FDF6E1;  /* cream */
-  --blomfelt-yellow-2:    #f5ecd0;
+  /* Forest scale (primær) */
+  --forest:  #1e2d2a;
+  --forest2: #253530;
+  --forest3: #2e4038;
+  --forest4: #3a5248;
 
-  /* Sekundære */
-  --black: #000000;
-  --white: #ffffff;
+  /* Sage (sekundære grønne) */
+  --sage:    #5c7a6e;
+  --sage-l:  #8aab9c;
+  --mist:    #c8d8d2;
 
-  /* Accentfarver */
-  --accent-blue:     #AFD0E7;
-  --accent-coral:    #FFA899;
-  --accent-sunny:    #F9C271;
-  --accent-lavender: #E5C8F8;
+  /* Cream (baggrunde) */
+  --cream:     #f5f0e8;
+  --cream2:    #ede8de;
+  --cream3:    #e2dbd0;
+  --parchment: #faf7f2;
 
-  /* Neutrale */
-  --gray-50:  #f8fafc;
-  --gray-100: #f1f5f9;
-  --gray-200: #e2e8f0;
-  --gray-300: #cbd5e1;
-  --gray-400: #94a3b8;
-  --gray-500: #64748b;
-  --gray-600: #475569;
-  --gray-700: #334155;
-  --gray-800: #1e293b;
-  --gray-900: #0f172a;
+  /* Gold (accent) */
+  --gold:    #c4993a;
+  --gold-l:  #ddb96a;
+  --gold-ll: #f2e4be;
+  --gold-bg: #fdf8ed;
+
+  /* Ink (tekst) */
+  --ink:     #1a1f1d;
+  --ink2:    #2d3633;
+  --ink3:    #445250;
+  --muted:   #7a9088;
+
+  /* Borders */
+  --border:  rgba(30,45,42,.12);
+  --border2: rgba(30,45,42,.22);
 
   /* Semantiske */
-  --success:    #10b981;
-  --success-bg: #d1fae5;
-  --warning:    #d97706;
-  --warning-bg: #fef3c7;
-  --danger:     #dc2626;
-  --danger-bg:  #fee2e2;
-  --info:       #0369a1;
-  --info-bg:    #e0f2fe;
+  --grn:     #1a6040;
+  --grn-bg:  #eaf4ee;
+  --grn-l:   #9ed4b4;
+  --red:     #8b2a20;
+  --red-bg:  #fdf0ee;
+  --red-l:   #f0b4ac;
+  --amber:   #8a5c10;
+  --amber-bg:#fdf5e0;
 
-  /* Radius / skygger */
-  --radius:    8px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
-  --shadow:    0 4px 12px rgba(0,0,0,.10);
-  --shadow-lg: 0 8px 28px rgba(0,0,0,.14);
+  /* Surfaces */
+  --surf:    #ffffff;
+  --surf2:   #f7f4ef;
+  --surf3:   #f0ede6;
+
+  /* Bagudkompatibel alias til eksisterende klasser */
+  --blomfelt-green:       var(--forest);
+  --blomfelt-green-dark:  #111b19;
+  --blomfelt-green-light: var(--forest3);
+  --blomfelt-green-50:    var(--surf3);
+  --blomfelt-yellow:      var(--cream);
+
+  --accent-blue:     #AFD0E7;
+  --accent-coral:    #FFA899;
+  --accent-sunny:    var(--gold-l);
+  --accent-lavender: #E5C8F8;
+
+  --gray-50:  #f8f7f3;
+  --gray-100: #efece4;
+  --gray-200: #e2dcd0;
+  --gray-300: #cbc3b3;
+  --gray-400: #9a8f7b;
+  --gray-500: var(--muted);
+  --gray-600: var(--ink3);
+  --gray-700: var(--ink2);
+  --gray-800: var(--ink);
+  --gray-900: var(--ink);
+
+  --success:    var(--grn);
+  --success-bg: var(--grn-bg);
+  --warning:    var(--amber);
+  --warning-bg: var(--amber-bg);
+  --danger:     var(--red);
+  --danger-bg:  var(--red-bg);
+  --info:       var(--forest3);
+  --info-bg:    var(--surf3);
+
+  --radius:    10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --sh:        0 1px 4px rgba(30,45,42,.07), 0 6px 20px rgba(30,45,42,.05);
+  --sh2:       0 2px 8px rgba(30,45,42,.10), 0 12px 40px rgba(30,45,42,.08);
+  --shadow-sm: var(--sh);
+  --shadow:    var(--sh);
+  --shadow-lg: var(--sh2);
 
   --transition: 180ms ease;
 }
@@ -70,79 +111,89 @@
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: var(--blomfelt-yellow);
-  color: var(--gray-900);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--cream);
+  color: var(--ink);
   min-height: 100vh;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 /* ───────────────────────────────────────────────────────────
-   HEADER
+   HEADER (Midas-stil)
    ─────────────────────────────────────────────────────────── */
 .site-header {
-  background: var(--blomfelt-green);
+  background: var(--forest);
   color: #fff;
-  padding: .75rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 10px rgba(0,0,0,.15);
+  padding: 0 20px;
+  height: 64px;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 300;
+  border-bottom: 1px solid rgba(196,153,58,.25);
+  gap: 8px;
   flex-wrap: wrap;
-  gap: 1rem;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: .7rem;
+  gap: 14px;
+  flex-shrink: 0;
   text-decoration: none;
-  color: #fff;
+  color: var(--cream);
 }
 
-.logo-mark {
-  width: 36px; height: 36px;
-  background: var(--blomfelt-yellow);
-  border-radius: var(--radius);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 800;
-  color: var(--blomfelt-green);
-  font-size: 20px;
-  letter-spacing: -.5px;
+.logo-svg {
+  height: 36px;
+  width: auto;
+  display: block;
+  color: var(--cream);
 }
 
-.logo-text { font-size: 1.05rem; font-weight: 700; letter-spacing: -.3px; line-height: 1.1; }
-.logo-sub  { font-size: .7rem; opacity: .75; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; }
+.logo-text-wrap { line-height: 1.2; padding-top: 4px; }
+.logo-sub  {
+  font-size: 9px;
+  font-weight: 400;
+  color: var(--gold-l);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-left: 1px solid rgba(253,246,225,.2);
+  padding-left: 12px;
+  margin-left: 2px;
+}
+@media (max-width: 640px) {
+  .logo-svg { height: 28px; }
+  .logo-sub { font-size: 8px; padding-left: 8px; letter-spacing: 1.2px; }
+}
 
 .nav { display: flex; gap: 3px; flex-wrap: wrap; }
 .nav button {
-  padding: .5rem 1rem;
+  padding: 6px 15px;
   border-radius: 6px;
   border: none;
   background: transparent;
-  color: rgba(255,255,255,.65);
-  font-family: inherit;
-  font-size: .82rem;
+  color: rgba(255,255,255,.5);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   letter-spacing: .2px;
   transition: var(--transition);
 }
-.nav button:hover { background: rgba(255,255,255,.08); color: #fff; }
+.nav button:hover { background: rgba(255,255,255,.08); color: rgba(255,255,255,.85); }
 .nav button.on {
-  background: rgba(253,246,225,.15);
-  color: var(--blomfelt-yellow);
-  box-shadow: inset 0 0 0 1px rgba(253,246,225,.25);
+  background: rgba(196,153,58,.2);
+  color: var(--gold-l);
+  border: 1px solid rgba(196,153,58,.3);
 }
 
-.header-actions { display: flex; gap: .5rem; align-items: center; }
+.header-actions { display: flex; gap: 6px; align-items: center; }
 
 /* ───────────────────────────────────────────────────────────
    LAYOUT
@@ -165,35 +216,75 @@ body {
   flex-wrap: wrap;
 }
 .pg-title {
-  font-size: 1.5rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
   font-weight: 700;
-  color: var(--blomfelt-green);
+  color: var(--forest);
   letter-spacing: -.3px;
 }
-.pg-sub { color: var(--gray-600); font-size: .9rem; margin-top: .2rem; }
+.pg-sub { color: var(--muted); font-size: .85rem; margin-top: .2rem; }
 
 /* ───────────────────────────────────────────────────────────
-   CARDS
+   CARDS (Midas-stil med top-stripe)
    ─────────────────────────────────────────────────────────── */
 .card {
-  background: #fff;
+  background: var(--surf);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  padding: 1.5rem;
-  margin-bottom: 1.25rem;
-}
-.card-sm { padding: 1rem 1.25rem; }
-.card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--blomfelt-green);
+  box-shadow: var(--sh);
+  padding: 1.25rem 1.4rem;
   margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+.card-sm { padding: .9rem 1.1rem; }
+.card-title {
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--forest);
+  margin-bottom: .85rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: .75rem;
+  letter-spacing: .2px;
 }
-.card-title .muted { font-weight: 400; color: var(--gray-500); font-size: .8rem; }
+.card-title .muted { font-weight: 400; color: var(--muted); font-size: .78rem; }
+
+/* Metric card (Midas-pattern) */
+.mc {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: var(--sh);
+  position: relative;
+  overflow: hidden;
+}
+.mc::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--forest3), var(--gold));
+  opacity: .6;
+}
+.mc-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  margin-bottom: 6px;
+}
+.mc-val {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: -.3px;
+}
+.mc-sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
 
 /* ───────────────────────────────────────────────────────────
    BUTTONS
@@ -203,30 +294,35 @@ body {
   align-items: center;
   justify-content: center;
   gap: .4rem;
-  padding: .55rem 1.1rem;
+  padding: .5rem 1rem;
   border-radius: var(--radius);
-  font-size: .85rem;
+  font-size: .82rem;
   font-weight: 500;
-  font-family: inherit;
+  font-family: 'DM Sans', sans-serif;
   border: 1px solid transparent;
   cursor: pointer;
   transition: var(--transition);
   text-decoration: none;
   white-space: nowrap;
+  letter-spacing: .15px;
 }
 .btn:disabled { opacity: .55; cursor: not-allowed; }
-.btn-primary { background: var(--blomfelt-green); color: #fff; }
-.btn-primary:hover:not(:disabled) { background: var(--blomfelt-green-dark); }
-.btn-outline { background: #fff; color: var(--blomfelt-green); border-color: var(--gray-300); }
-.btn-outline:hover:not(:disabled) { background: var(--blomfelt-green-50); border-color: var(--blomfelt-green); }
-.btn-ghost { background: transparent; color: var(--gray-700); }
-.btn-ghost:hover:not(:disabled) { background: var(--gray-100); }
-.btn-danger { background: var(--danger); color: #fff; }
-.btn-danger:hover:not(:disabled) { background: #b91c1c; }
-.btn-sunny { background: var(--accent-sunny); color: var(--gray-900); }
-.btn-sunny:hover:not(:disabled) { background: #f5b25b; }
-.btn-sm { padding: .35rem .7rem; font-size: .78rem; }
-.btn-icon { padding: .35rem .5rem; }
+.btn-primary { background: var(--forest); color: #fff; border-color: var(--forest); }
+.btn-primary:hover:not(:disabled) { background: var(--forest2); }
+.btn-gold   { background: var(--gold); color: #fff; border-color: var(--gold); }
+.btn-gold:hover:not(:disabled) { background: #b08730; }
+.btn-sage   { background: var(--sage); color: #fff; border-color: var(--sage); }
+.btn-sage:hover:not(:disabled) { background: var(--forest3); }
+.btn-outline { background: var(--surf); color: var(--forest); border-color: var(--border2); }
+.btn-outline:hover:not(:disabled) { background: var(--surf2); border-color: var(--forest3); }
+.btn-ghost { background: transparent; color: var(--ink3); }
+.btn-ghost:hover:not(:disabled) { background: var(--surf3); }
+.btn-danger { background: var(--red); color: #fff; border-color: var(--red); }
+.btn-danger:hover:not(:disabled) { background: #701e16; }
+.btn-sunny { background: var(--gold-l); color: var(--ink); border-color: var(--gold-l); }
+.btn-sunny:hover:not(:disabled) { background: var(--gold); color: #fff; }
+.btn-sm { padding: .3rem .65rem; font-size: .76rem; }
+.btn-icon { padding: .3rem .5rem; }
 
 /* ───────────────────────────────────────────────────────────
    FORMS
@@ -234,31 +330,32 @@ body {
 .field { margin-bottom: .9rem; }
 .field label {
   display: block;
-  font-size: .78rem;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--gray-700);
+  color: var(--ink2);
   margin-bottom: .3rem;
-  letter-spacing: .2px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
 }
-.field small { color: var(--gray-500); font-weight: 400; }
+.field small { color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
 
 .input, .select, .textarea {
   width: 100%;
-  padding: .55rem .75rem;
-  border: 1px solid var(--gray-300);
+  padding: .5rem .7rem;
+  border: 1px solid var(--border2);
   border-radius: var(--radius);
-  font-size: .9rem;
-  font-family: inherit;
-  background: #fff;
-  color: var(--gray-900);
+  font-size: .86rem;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surf);
+  color: var(--ink);
   transition: var(--transition);
 }
 .input:focus, .select:focus, .textarea:focus {
   outline: none;
-  border-color: var(--blomfelt-green);
-  box-shadow: 0 0 0 3px rgba(44,64,58,.12);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(196,153,58,.15);
 }
-.input-num { font-variant-numeric: tabular-nums; text-align: right; }
+.input-num { font-family: 'DM Mono', monospace; font-variant-numeric: tabular-nums; text-align: right; }
 .textarea { min-height: 80px; resize: vertical; font-family: inherit; }
 
 .row { display: grid; gap: .9rem; }
@@ -272,39 +369,41 @@ body {
 /* ───────────────────────────────────────────────────────────
    TABLES
    ─────────────────────────────────────────────────────────── */
-.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--gray-200); }
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surf); }
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: .86rem;
-  background: #fff;
+  font-size: .82rem;
+  background: var(--surf);
 }
 .table th, .table td {
-  padding: .55rem .75rem;
+  padding: .5rem .7rem;
   text-align: left;
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
 .table th {
-  background: var(--blomfelt-green-50);
-  color: var(--blomfelt-green);
+  background: var(--forest);
+  color: var(--cream);
   font-weight: 600;
-  font-size: .77rem;
-  letter-spacing: .3px;
+  font-size: .7rem;
+  letter-spacing: .6px;
   text-transform: uppercase;
   white-space: nowrap;
   position: sticky;
   top: 0;
 }
-.table tbody tr:hover { background: var(--gray-50); }
+.table tbody tr:hover { background: var(--surf2); }
 .table tbody tr:last-child td { border-bottom: none; }
-.table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.table tbody tr:nth-child(even) { background: var(--parchment); }
+.table tbody tr:nth-child(even):hover { background: var(--surf2); }
+.table .num { text-align: right; font-family: 'DM Mono', monospace; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: .78rem; }
 .table .actions { white-space: nowrap; text-align: right; }
 .table tfoot td {
-  background: var(--blomfelt-green-50);
+  background: var(--cream2);
   font-weight: 700;
-  color: var(--blomfelt-green);
-  border-top: 2px solid var(--blomfelt-green);
+  color: var(--forest);
+  border-top: 2px solid var(--forest);
 }
 
 /* ───────────────────────────────────────────────────────────
@@ -312,29 +411,31 @@ body {
    ─────────────────────────────────────────────────────────── */
 .badge {
   display: inline-block;
-  padding: .2rem .55rem;
+  padding: 2px 8px;
   border-radius: 99px;
-  font-size: .7rem;
+  font-size: 9px;
   font-weight: 600;
-  letter-spacing: .3px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
 }
-.badge-green { background: var(--blomfelt-green-50); color: var(--blomfelt-green); }
-.badge-warn  { background: var(--warning-bg); color: var(--warning); }
-.badge-danger{ background: var(--danger-bg); color: var(--danger); }
-.badge-info  { background: var(--info-bg); color: var(--info); }
-.badge-muted { background: var(--gray-100); color: var(--gray-600); }
+.badge-green  { background: var(--grn-bg); color: var(--grn); border: 1px solid var(--grn-l); }
+.badge-warn   { background: var(--amber-bg); color: var(--amber); }
+.badge-danger { background: var(--red-bg); color: var(--red); }
+.badge-info   { background: var(--gold-bg); color: var(--gold); border: 1px solid var(--gold-ll); font-family: 'DM Mono', monospace; letter-spacing: .2px; text-transform: none; font-size: 10px; }
+.badge-muted  { background: var(--surf3); color: var(--ink3); }
 
 .alert {
-  padding: .9rem 1.1rem;
+  padding: .8rem 1.05rem;
   border-radius: var(--radius);
   margin-bottom: 1rem;
   border-left: 3px solid;
-  font-size: .88rem;
+  font-size: .83rem;
+  line-height: 1.5;
 }
-.alert-warn   { background: var(--warning-bg); border-color: var(--warning); color: #78350f; }
-.alert-danger { background: var(--danger-bg);  border-color: var(--danger);  color: #7f1d1d; }
-.alert-info   { background: var(--info-bg);    border-color: var(--info);    color: #0c4a6e; }
-.alert-success{ background: var(--success-bg); border-color: var(--success); color: #064e3b; }
+.alert-warn   { background: var(--amber-bg); border-color: var(--amber); color: #65460a; }
+.alert-danger { background: var(--red-bg);   border-color: var(--red);   color: #5d1b14; }
+.alert-info   { background: var(--gold-bg);  border-color: var(--gold);  color: var(--forest); }
+.alert-success{ background: var(--grn-bg);   border-color: var(--grn);   color: #0e4028; }
 .alert strong { font-weight: 700; }
 .alert p + p { margin-top: .4rem; }
 
@@ -343,59 +444,64 @@ body {
    ─────────────────────────────────────────────────────────── */
 .modal-bg {
   position: fixed; inset: 0;
-  background: rgba(30,46,42,.55);
+  background: rgba(30,45,42,.55);
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 200;
+  z-index: 400;
   padding: 1rem;
   backdrop-filter: blur(2px);
 }
 .modal-bg.on { display: flex; }
 .modal {
-  background: #fff;
+  background: var(--surf);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--sh2);
   max-width: 640px;
   width: 100%;
   max-height: 88vh;
   overflow-y: auto;
+  border-top: 3px solid var(--gold);
 }
 .modal-wide { max-width: 900px; }
 .modal-head {
-  padding: 1.1rem 1.5rem .75rem;
-  border-bottom: 1px solid var(--gray-200);
+  padding: 1rem 1.4rem .7rem;
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background: var(--parchment);
 }
-.modal-title { font-size: 1.05rem; font-weight: 700; color: var(--blomfelt-green); }
-.modal-body { padding: 1.25rem 1.5rem; }
+.modal-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--forest); letter-spacing: .2px; }
+.modal-body { padding: 1.2rem 1.4rem; }
 .modal-foot {
-  padding: .9rem 1.5rem;
-  border-top: 1px solid var(--gray-200);
+  padding: .85rem 1.4rem;
+  border-top: 1px solid var(--border);
   display: flex;
   justify-content: flex-end;
   gap: .5rem;
+  background: var(--parchment);
 }
 .modal-close {
   background: transparent; border: none;
-  font-size: 1.6rem; line-height: 1;
-  cursor: pointer; color: var(--gray-500);
+  font-size: 1.5rem; line-height: 1;
+  cursor: pointer; color: var(--muted);
   padding: 0 .3rem;
 }
-.modal-close:hover { color: var(--gray-900); }
+.modal-close:hover { color: var(--forest); }
 
 /* ───────────────────────────────────────────────────────────
    ACCORDION-style nested lists
    ─────────────────────────────────────────────────────────── */
 .tree-node {
-  border: 1px solid var(--gray-200);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  margin-bottom: .6rem;
-  background: #fff;
+  margin-bottom: .55rem;
+  background: var(--surf);
   overflow: hidden;
+  transition: box-shadow var(--transition), border-color var(--transition);
 }
+.tree-node:hover { border-color: var(--border2); box-shadow: var(--sh); }
 .tree-head {
   padding: .7rem 1rem;
   display: flex;
@@ -403,15 +509,22 @@ body {
   justify-content: space-between;
   gap: .75rem;
   cursor: pointer;
-  background: var(--blomfelt-green-50);
+  background: linear-gradient(180deg, var(--parchment), var(--surf2));
+  border-bottom: 1px solid transparent;
 }
-.tree-head:hover { background: #e4ece9; }
-.tree-label { font-weight: 600; color: var(--blomfelt-green); font-size: .92rem; }
-.tree-meta  { color: var(--gray-600); font-size: .8rem; }
-.tree-body  { padding: .9rem 1rem 1rem; display: none; border-top: 1px solid var(--gray-200); }
+.tree-head:hover { background: var(--surf2); }
+.tree-label { font-weight: 600; color: var(--forest); font-size: .9rem; font-family: 'Playfair Display', serif; letter-spacing: .1px; }
+.tree-meta  { color: var(--muted); font-size: .78rem; }
+.tree-body  { padding: .9rem 1rem 1rem; display: none; border-top: 1px solid var(--border); background: var(--parchment); }
 .tree-node.open > .tree-body { display: block; }
-.tree-node.open > .tree-head .caret { transform: rotate(90deg); }
-.caret { display: inline-block; transition: transform .2s; color: var(--gray-500); width: 14px; text-align: center; }
+.tree-node.open > .tree-head { border-bottom-color: var(--border); background: linear-gradient(180deg, var(--surf), var(--surf2)); }
+.tree-node.open > .tree-head .caret { transform: rotate(90deg); color: var(--gold); }
+.caret { display: inline-block; transition: transform .2s; color: var(--ink3); width: 14px; text-align: center; }
+
+/* Nested (lån inde i ejendom) */
+.tree-node .tree-node { background: var(--surf); border-color: var(--border); }
+.tree-node .tree-node > .tree-head { background: var(--surf); }
+.tree-node .tree-node.open > .tree-head { background: var(--gold-bg); }
 
 /* ───────────────────────────────────────────────────────────
    FOOTER / PRINT
@@ -488,10 +601,41 @@ body {
 .mb-4 { margin-bottom: 1rem; }
 .space-y-2 > * + * { margin-top: .5rem; }
 
-.checkbox-list { display: grid; gap: .35rem; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); max-height: 280px; overflow-y: auto; padding: .5rem; border: 1px solid var(--gray-200); border-radius: var(--radius); background: var(--gray-50); }
-.checkbox-list label { display: flex; gap: .5rem; align-items: center; font-size: .85rem; padding: .3rem .4rem; border-radius: 4px; cursor: pointer; }
-.checkbox-list label:hover { background: #fff; }
+.checkbox-list { display: grid; gap: .35rem; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); max-height: 280px; overflow-y: auto; padding: .5rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--parchment); }
+.checkbox-list label { display: flex; gap: .5rem; align-items: center; font-size: .82rem; padding: .3rem .4rem; border-radius: 4px; cursor: pointer; }
+.checkbox-list label:hover { background: var(--surf); }
 .checkbox-list input { cursor: pointer; }
+
+/* Filter-toggle (Midas-stil segment-control) */
+.filter-group {
+  display: inline-flex;
+  background: var(--surf3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2px;
+  gap: 2px;
+}
+.filter-btn {
+  padding: 4px 12px;
+  border: none;
+  background: transparent;
+  color: var(--ink3);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .3px;
+  cursor: pointer;
+  border-radius: calc(var(--radius) - 3px);
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.filter-btn:hover { color: var(--forest); background: rgba(255,255,255,.5); }
+.filter-btn.on {
+  background: var(--forest);
+  color: var(--gold-l);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(30,45,42,.15);
+}
 
 .empty-state {
   text-align: center;
@@ -506,11 +650,10 @@ body {
 
 <!-- ─── HEADER ─────────────────────────────────────────── -->
 <header class="site-header">
-  <a class="logo" href="#">
-    <div class="logo-mark">B</div>
-    <div>
-      <div class="logo-text">Fælleslån</div>
-      <div class="logo-sub">Blomfelt A/S</div>
+  <a class="logo" href="#" aria-label="Blomfelt">
+    <svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 211" role="img" aria-hidden="true"><path fill="currentColor" d="M195.07,114.88c17.47-10.16,29-27.87,29-49,0-19-8.61-34.65-25.82-47.15S160.65,0,137.18,0C86.06,0,49.55,21.88,29.73,48.45c-13.82,18-20.08,36.73-20.08,54.18,0,26.31,13,49,36.77,57.57,10.43,3.39,14.87-9.37,5-13.28C33.9,139.63,24,123,24,102.9c0-22.67,13-49.5,39.9-68.78C81.37,21.62,108,13.29,138,13.29a98.06,98.06,0,0,1,30.25,4.94c-4.17,3.13-8.61,8.6-12.78,14.07-2.09,3.13-6,10.42-7.82,13.81l-3.91,7.81c-1.83,3.65-2.87,6.25-3.66,7.56-.52,1.3-1.82,4.16-3.65,8.33-1.82,3.91-2.87,6.51-3.39,7.56l-8.86,19.27v-.26c-3.65,7.56-6.52,14.07-8.87,19.54l.26-.26c-5.22,11.2-9.65,20.06-13,26.57a146.56,146.56,0,0,1-13.56,20.84A71.58,71.58,0,0,1,71.2,180c-20.08-9.9-35.73-14.85-46.42-14.85C11.21,165.15,0,173.49,0,182.87c0,16.67,25,20.84,35.47,20.84q21.51-.39,36.77-7.82c21.12,10.16,39.12,15.11,54,15.11,21.13,0,39.64-7,55.29-21.36,15.91-14.33,23.73-30,23.73-47.15C205.24,131.81,195.07,114.88,195.07,114.88ZM35.47,189.64c-14.35,0-21.65-2.34-21.65-6.77,0-2.35,3.65-3.91,11.22-4.17,6.78,0,12.25,1.82,17.73,3.13,1.3.26,4.95,2.08,6,2.34A42.75,42.75,0,0,0,55,187,71.89,71.89,0,0,1,35.47,189.64ZM171.34,180c-12.78,11.2-27.9,16.67-45.9,16.67-11.74,0-24.77-3.12-39.64-9.64,11.48-9.37,23-26.83,29.21-39.33q5.08-9.76,13.3-27.35l17.47-38c.52-1.83,1.57-3.39,2.35-5.73C161.43,46.37,170.56,27.87,181,23.7c17.73,10.16,28.43,25.79,28.43,42.21,0,17.45-10.18,32-25.56,39.59a55.42,55.42,0,0,0-27.12-7c-10.7,0-20.09,5.73-20.09,14.32,0,7,8.87,13.55,20.09,13.55a74,74,0,0,0,25.55-4.43c5.48,5,8.09,11.72,8.09,20.58C190.38,156.3,184.12,168.8,171.34,180Zm-.52-66.68A29.23,29.23,0,0,1,157,115.66a20.89,20.89,0,0,1-5.48-1.3c-2.35-.78-3.13-1.57-2.35-2.35,2.09-1.82,5.48-2.34,10.43-1.82C164.56,110.45,168.47,111.49,170.82,113.32Z"/><path fill="currentColor" d="M319.73,135.2a33.34,33.34,0,0,0,3.91-14.85c0-12.77-8.61-19.8-22.95-19.8-13.3,0-24.52,9.38-33.64,28.39L247.49,170.1c-.19.42-.36.83-.53,1.24a76.78,76.78,0,0,1-6.51,11c-4.17,6-8.87,8.59-14.34,8.59-9.91,0-7.57-9.12-5-15.37L277.48,53.4c5.48-11.2-8.34-14.85-12.78-5.47L208.37,169.84A36,36,0,0,0,204.46,185c0,13,7.3,19.54,21.65,19.54q11.31,0,20.3-9.34c3.55,6.08,10.63,9.34,20.38,9.34,13.3,0,24.51-9.38,33.64-28.4Zm-52.94,55.74c-6,0-8.87-2.08-8.87-6.25a19.42,19.42,0,0,1,2.35-8.6L279,136a104.59,104.59,0,0,1,7-12.77c4.18-6.25,9.13-9.11,14.61-9.11,8.61,0,10.95,5,6.52,14.84l-18.78,40.64C281.65,183.91,274.35,190.94,266.79,190.94Z"/><path fill="currentColor" d="M640,107.06c-.26-3.38-2.34-5.21-6-5.21h-3.65q-5.09,0-3.13-4.69l7.31-15.37c5.47-11.2-8.35-14.84-12.78-5.47l-9.91,20.84c-1.31,3.13-3.65,4.69-7.31,4.69h-1a8.35,8.35,0,0,0-3.65.78c-3.39,1.31-5.22,3.91-4.95,7.56.26,3.39,2.34,5.21,6.25,5.21,1.83,0,2.35,1.56,1,4.69l-22.52,48.77a12.48,12.48,0,0,0-.95,1.5c-2.87,5.21-2.87,6-7,12s-8.87,8.59-14.35,8.59c-9.91,0-7.56-9.12-4.95-15.37L608.68,53.4c5.48-11.2-8.35-14.85-12.78-5.47L539.57,169.84h0c-5.48,10.15-17.74,21.09-31.29,21.09-10.44-.26-15.65-4.69-15.65-13,0-3.13,1.3-8.34,4.17-15.37q2-4.7,7-3.13a35.87,35.87,0,0,0,7.57,1c16.69,0,28.94-10.42,36.77-31a32.94,32.94,0,0,0,2.08-11.21c0-11.2-7.3-17.71-20.08-17.71s-23.73,9.38-32.6,28.39l-14.08,29.7c-3.91,8.08-5.74,15.11-5.74,20.58,0,16.41,12.52,25.27,30.52,25.27a43.85,43.85,0,0,0,25.81-8.6c1-.76,2-1.53,3-2.32,2.74,7.28,9.53,10.92,20.24,10.92q11.22,0,20.14-9.18c3.62,6.67,11.13,10.09,21.33,9.18q11.34-1.17,20.34-10.16a62.82,62.82,0,0,0,13.56-19c1.56-4.17.26-7-3.65-8.33-3.91-1.57-6.78-.52-8.87,3.38-2.87,5.21-2.87,6-7,12s-8.87,8.59-14.34,8.59c-8.61,0-10.43-7.29-7-15.37l25-55.48a7.38,7.38,0,0,1,7.3-4.69h7.57l3.39-.52C638.67,113.58,640.23,111,640,107.06Zm-132,32.3,3.39-7.55c5.47-12.76,11.73-18.76,18.77-17.71,5.48.78,6.52,5.47,2.87,14.06-4.95,12-11.73,18-19.82,18C508,146.14,506.19,143.79,508,139.36Z"/><path fill="currentColor" d="M483.5,115.4h10.43a8.39,8.39,0,0,0,3.66-.78c3.65-1.31,5.21-3.91,5-7.56-.26-3.38-2.35-5.21-6.26-5.21H490c-3.39,0-4.17-1.56-2.87-4.69L496.58,77c6.52-13.8,14-20.84,21.8-20.84s8.34-13.54,0-13.54c-18.52,0-30.52,20.22-34.43,29.34L472,97.16c-1.31,3.13-3.91,4.69-7.57,4.69h-3.65a17.75,17.75,0,0,0-3.65.52c-3.65,1.57-5.47,4.17-5.21,7.56,0,3.38,1.82,5.21,5.73,5.47h.53q5.09,0,3.13,4.69l-23.87,51.56c-6.58,12.93-13.41,19.29-20.73,19.29-4.95,0-7.56-2.08-7.56-6a21.33,21.33,0,0,1,2.61-9.38l18.77-40.37a33.21,33.21,0,0,0,3.91-14.85c0-12.51-7.82-19.8-21.12-19.8-7.56,0-14.6,3.39-21.38,10.16-3.13-6.77-9.13-10.16-18.26-10.16-5.22,0-11.47,3.13-13.82,6.25-.52-3.38-2.35-5.21-5.74-5.21a7.06,7.06,0,0,0-7,4.69L317.64,170.1c-6.52,13.81-13.56,20.84-21.38,20.84s-8.35,13.55,0,13.55c18.51,0,30.51-19.8,34.42-28.92l19.82-43.76c3.39-8.08,12.26-17.71,21.65-17.71,5,0,7.56,2.08,7.56,6.25,0,2.34-.78,5.21-2.35,9.12l-30,64.08a7.11,7.11,0,0,0-1,3.64c0,3.13,1.82,4.95,5.21,5.21,4.44.52,7.83-1.56,10.17-6.51l28.69-62c5-10.16,13.56-19.79,23-19.79q7,0,7,6.25c0,1.82-.78,4.69-2.34,8.59l-19,40.9A36,36,0,0,0,395.1,185c0,13,7.3,19.54,21.64,19.54q11.34,0,20.34-9.38c6-6.25,10.7-12.76,13.56-19.8l25.56-55.22A7.37,7.37,0,0,1,483.5,115.4Z"/></svg>
+    <div class="logo-text-wrap">
+      <div class="logo-sub">Fælleslån · Ejendomsadministration</div>
     </div>
   </a>
 
@@ -529,18 +672,23 @@ body {
 <section class="page on" id="page-opsaetning">
   <div class="pg-head">
     <div>
-      <h1 class="pg-title">Opsætning</h1>
-      <p class="pg-sub">Ejendomme, lån, rente-perioder, ydelser og deltagere.</p>
+      <h1 class="pg-title">Ejendomme & fælleslån</h1>
+      <p class="pg-sub">Opsætning af kunder, lån, renteperioder og låndeltagere.</p>
     </div>
-    <div>
-      <button class="btn btn-primary btn-sm" id="btn-new-ejendom">+ Ny ejendom</button>
+    <div style="display:flex; gap:.4rem; flex-wrap:wrap;">
+      <button class="btn btn-outline btn-sm" id="btn-new-ejendom">+ Ny kunde</button>
+      <button class="btn btn-primary btn-sm" id="btn-new-lan-global">+ Nyt fælleslån</button>
     </div>
   </div>
 
-  <div class="card card-sm" style="display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; padding:.75rem 1rem;">
-    <input class="input" id="ej-srch" placeholder="Søg på selskab, kunde, adresse, postnr eller by…" style="flex:1; min-width:260px;">
-    <div style="display:flex; gap:.4rem; align-items:center; flex-wrap:wrap;">
-      <span class="muted" style="font-size:.78rem;">Sortér:</span>
+  <div class="card card-sm" style="display:flex; gap:.75rem; align-items:center; flex-wrap:wrap;">
+    <input class="input" id="ej-srch" placeholder="Søg på selskab, kunde, adresse, postnr eller by…" style="flex:1; min-width:240px;">
+    <div class="filter-group" role="group" aria-label="Vis">
+      <button class="filter-btn on" id="ej-filter-laan" data-filter="laan" title="Vis kun ejendomme med mindst ét fælleslån">Med lån</button>
+      <button class="filter-btn" id="ej-filter-alle" data-filter="alle" title="Vis alle ejendomme">Alle kunder</button>
+    </div>
+    <div style="display:flex; gap:.35rem; align-items:center; flex-wrap:wrap;">
+      <span class="muted" style="font-size:11px; text-transform:uppercase; letter-spacing:.5px;">Sortér</span>
       <button class="btn btn-outline btn-sm" id="ej-sort-selskab" data-col="selskab">Selskab <span class="sort-ind">↕</span></button>
       <button class="btn btn-outline btn-sm" id="ej-sort-navn" data-col="navn">Kunde <span class="sort-ind">↕</span></button>
     </div>
@@ -884,6 +1032,11 @@ const Util = {
     const m = String(navn).match(/\(([^)]+)\)/);
     return m ? m[1].trim() : '';
   },
+  /** Fjern "(xxxx)" fra navn (fx "I/S Bredballe (2023)" → "I/S Bredballe"). */
+  stripParens(navn) {
+    if (!navn) return '';
+    return String(navn).replace(/\s*\([^)]*\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
+  },
   /** Split "Gade 12, 2720 Vanløse" → {adresse, postnr, by}. */
   parseAdresse(full) {
     if (!full) return { adresse: '', postnr: '', by: '' };
@@ -905,12 +1058,14 @@ const Storage = {
       if (!raw) return this.initial();
       const data = JSON.parse(raw);
       const merged = Object.assign(this.initial(), data);
-      // Migration: udfyld selskab fra parentes + split kombineret adresse
+      // Migration: udfyld selskab fra parentes, strip parentes fra navn, split kombineret adresse
       let changed = 0;
       for (const e of (merged.ejendomme || [])) {
-        if ((!e.selskab || String(e.selskab).trim() === '') && e.navn) {
+        if (e.navn && /\([^)]+\)/.test(e.navn)) {
           const s = Util.extractSelskab(e.navn);
-          if (s) { e.selskab = s; changed++; }
+          if (s && (!e.selskab || String(e.selskab).trim() === '')) e.selskab = s;
+          e.navn = Util.stripParens(e.navn);
+          changed++;
         }
         if ((e.adresse || '') && (!e.postnr || e.postnr === '') && (!e.by || e.by === '')) {
           const p = Util.parseAdresse(e.adresse);
@@ -1705,6 +1860,7 @@ const UI = (function() {
 
   function bindGlobal() {
     document.getElementById('btn-new-ejendom').addEventListener('click', () => editEjendom(null));
+    document.getElementById('btn-new-lan-global').addEventListener('click', () => pickEjendomForNewLan());
     document.getElementById('btn-export').addEventListener('click', () => { try { Xlsx.exportAll(); } catch(e){ alert('Eksport fejlede: '+e.message); } });
     document.getElementById('btn-import').addEventListener('click', () => document.getElementById('file-import').click());
     document.getElementById('file-import').addEventListener('change', async (e) => {
@@ -1772,10 +1928,17 @@ const UI = (function() {
 
   /* ─── OPSÆTNING: tree view ──────────────────────────── */
   let ejSort = { col: 'selskab', dir: 'asc' };
+  let ejFilter = 'laan'; // 'laan' = kun m. lån (default), 'alle' = alle
 
   function filterAndSortEjendomme(list) {
     const srch = (document.getElementById('ej-srch')?.value || '').toLowerCase().trim();
-    const filtered = !srch ? list.slice() : list.filter(e =>
+    // Primærfilter: kun ejendomme med mindst ét lån (medmindre 'alle' valgt)
+    let base = list.slice();
+    if (ejFilter === 'laan') {
+      base = base.filter(e => Data.lanForEjendom(e.id).length > 0);
+    }
+    // Søgning
+    const filtered = !srch ? base : base.filter(e =>
       (e.navn||'').toLowerCase().includes(srch) ||
       String(e.selskab||'').toLowerCase().includes(srch) ||
       (e.adresse||'').toLowerCase().includes(srch) ||
@@ -1827,6 +1990,17 @@ const UI = (function() {
         });
       }
     }
+    for (const val of ['laan','alle']) {
+      const btn = document.getElementById(`ej-filter-${val}`);
+      if (btn && !btn.__bound) {
+        btn.__bound = true;
+        btn.addEventListener('click', () => {
+          ejFilter = val;
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('on', b.dataset.filter === val));
+          renderOpsaetning();
+        });
+      }
+    }
   }
 
   function renderOpsaetning() {
@@ -1845,11 +2019,17 @@ const UI = (function() {
       return;
     }
     const view = filterAndSortEjendomme(d.ejendomme);
-    if (countEl) countEl.textContent = view.length === d.ejendomme.length
-      ? `${d.ejendomme.length} ejendom${d.ejendomme.length===1?'':'me'}`
-      : `${view.length} af ${d.ejendomme.length}`;
+    const withLan = d.ejendomme.filter(e => Data.lanForEjendom(e.id).length > 0).length;
+    if (countEl) {
+      countEl.textContent = ejFilter === 'laan'
+        ? `${view.length} m. lån (${d.ejendomme.length} i alt)`
+        : `${view.length} af ${d.ejendomme.length} · ${withLan} m. lån`;
+    }
     if (view.length === 0) {
-      root.innerHTML = `<div class="card empty-state"><h3>Ingen match</h3><p>Ingen ejendomme matcher søgningen.</p></div>`;
+      const hint = ejFilter === 'laan' && withLan === 0
+        ? `<p>Der er ingen ejendomme med lån registreret. Skift til <strong>"Alle kunder"</strong> for at se dine kunder, eller klik <strong>"+ Nyt fælleslån"</strong> for at komme i gang.</p>`
+        : `<p>Ingen ejendomme matcher søgningen.</p>`;
+      root.innerHTML = `<div class="card empty-state"><h3>Ingen match</h3>${hint}</div>`;
       return;
     }
     root.innerHTML = view.map(e => renderEjendomNode(e)).join('');
@@ -2030,8 +2210,10 @@ const UI = (function() {
     });
     document.getElementById('ej-save').addEventListener('click', () => {
       let selskab = document.getElementById('ej-selskab').value.trim();
-      const navn = document.getElementById('ej-navn').value.trim();
-      if (!selskab) selskab = Util.extractSelskab(navn);
+      const rawNavn = document.getElementById('ej-navn').value.trim();
+      if (!selskab) selskab = Util.extractSelskab(rawNavn);
+      // Fjern "(xxxx)" fra navn, så selskab kun står i selskab-feltet
+      const navn = Util.stripParens(rawNavn);
       const obj = {
         id: e.id,
         navn,
@@ -2046,6 +2228,71 @@ const UI = (function() {
       if (id) Data.updateEjendom(id, obj); else Data.addEjendom(obj);
       closeModal(); renderOpsaetning(); renderLanSelectors();
     });
+  }
+
+  /** Modal: vælg ejendom for nyt lån (fra alle kunder, inkl. dem uden lån). */
+  function pickEjendomForNewLan() {
+    const d = Data.get();
+    if (d.ejendomme.length === 0) {
+      if (confirm('Der er ingen kunder oprettet endnu. Vil du oprette en ny kunde først?')) editEjendom(null);
+      return;
+    }
+    const sorted = d.ejendomme.slice().sort((a,b) => {
+      const sa = parseInt(a.selskab||'99999'), sb = parseInt(b.selskab||'99999');
+      if (!isNaN(sa) && !isNaN(sb) && sa !== sb) return sa - sb;
+      return String(a.navn||'').localeCompare(String(b.navn||''), 'da');
+    });
+    const body = `
+      <p class="muted" style="font-size:.82rem; margin-bottom:.8rem;">Vælg kunde/ejendom for det nye fælleslån. Søg for at filtrere listen.</p>
+      <input class="input" id="pick-srch" placeholder="Søg på selskab, kunde, adresse…" autofocus>
+      <div id="pick-list" style="margin-top:.75rem; max-height:420px; overflow-y:auto; border:1px solid var(--border); border-radius:var(--radius); background:var(--parchment);"></div>
+    `;
+    const foot = `<button class="btn btn-ghost" onclick="UI.closeModal()">Annullér</button>`;
+    openModal('Vælg kunde for nyt fælleslån', body, foot, true);
+
+    const listEl = document.getElementById('pick-list');
+    const srchEl = document.getElementById('pick-srch');
+    const renderPickList = () => {
+      const s = srchEl.value.toLowerCase().trim();
+      const filtered = !s ? sorted : sorted.filter(e =>
+        (e.navn||'').toLowerCase().includes(s) ||
+        String(e.selskab||'').toLowerCase().includes(s) ||
+        (e.adresse||'').toLowerCase().includes(s) ||
+        String(e.postnr||'').includes(s) ||
+        (e.by||'').toLowerCase().includes(s)
+      );
+      if (filtered.length === 0) {
+        listEl.innerHTML = '<p class="muted" style="padding:1rem; text-align:center;">Ingen kunder matcher søgningen.</p>';
+        return;
+      }
+      listEl.innerHTML = filtered.map(e => {
+        const lanCount = Data.lanForEjendom(e.id).length;
+        const adr = [e.adresse, e.postnr && (e.postnr + ' ' + (e.by||'')).trim()].filter(Boolean).join(', ');
+        return `
+          <div class="pick-row" data-id="${e.id}" style="padding:.65rem .9rem; border-bottom:1px solid var(--border); cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:.75rem;">
+            <div style="flex:1; min-width:0;">
+              <div style="display:flex; gap:.5rem; align-items:center;">
+                ${e.selskab ? `<span class="badge badge-info">${Util.escHtml(e.selskab)}</span>` : ''}
+                <strong style="color:var(--forest); font-family:'Playfair Display',serif;">${Util.escHtml(e.navn||'(uden navn)')}</strong>
+              </div>
+              ${adr ? `<div style="font-size:.76rem; color:var(--muted); margin-top:.15rem;">${Util.escHtml(adr)}</div>` : ''}
+            </div>
+            <span class="badge ${lanCount > 0 ? 'badge-green' : 'badge-muted'}">${lanCount} lån</span>
+          </div>`;
+      }).join('');
+      listEl.querySelectorAll('.pick-row').forEach(r => {
+        r.addEventListener('click', () => {
+          const id = r.dataset.id;
+          closeModal();
+          // Åbn nyt lån-modal med valgt ejendom
+          setTimeout(() => editLan(null, id), 100);
+        });
+        r.addEventListener('mouseenter', () => { r.style.background = 'var(--surf2)'; });
+        r.addEventListener('mouseleave', () => { r.style.background = ''; });
+      });
+    };
+    srchEl.addEventListener('input', renderPickList);
+    renderPickList();
   }
 
   function editLan(id, ejendom_id) {
@@ -2667,7 +2914,7 @@ const UI = (function() {
   function loadDemoData() {
     const d = Storage.initial();
     // Ejendom
-    const ej = { id: 'demo-ef-katrinedalsvej-46', selskab: '4033', navn: 'EF Katrinedalsvej 46 (4033)', adresse: 'Katrinedalsvej 46', postnr: '2720', by: 'Vanløse', cvr: '76024111', note: 'Demo-ejendom (tidligere ejendomsnr. 1016 hos Vest Administrationen)' };
+    const ej = { id: 'demo-ef-katrinedalsvej-46', selskab: '4033', navn: 'EF Katrinedalsvej 46', adresse: 'Katrinedalsvej 46', postnr: '2720', by: 'Vanløse', cvr: '76024111', note: 'Demo-ejendom (tidligere ejendomsnr. 1016 hos Vest Administrationen)' };
     d.ejendomme.push(ej);
 
     // Lån 1: Danske Bank Hovedstol 1.300.000 (oprindeligt)
